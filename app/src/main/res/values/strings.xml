@@ -1,3 +1,10 @@
 <resources>
     <string name="app_name">pesv_movil</string>
+    <string name="title_activity_home">HomeActivity</string>
+    <string name="title_activity_garaje">GarajeActivity</string>
+    <string name="tasks_header_image_content_description">Home header Image</string>
+    <string name="navigation_view_header_title">Pesv</string>
+    <string name="home_title">Home</string>
+    <string name="garage_title">Garaje</string>
+    <string name="open_drawer">Open Drawer</string>
 </resources>
