@@ -7,11 +7,11 @@ data class MyResponseVehiculo(
 
 data class InfoVehicle(
     val _id: String,
-    val idUsuario: String,
-    val idUsuarioAsignado: String?,
+    val idUsuario: UserInfo,
+    val idUsuarioAsignado: UserInfo?,
     val idClaseVehiculo: String,
-    val idTipoVehiculo: String,
-    val idZona: String,
+    val idTipoVehiculo: TipoVehiculo,
+    val idZona: Zona,
     val marca: String,
     val servicio: String,
     val capacidadVehiculo: Int,
@@ -26,4 +26,20 @@ data class InfoVehicle(
     val createdAt: String,
     val updatedAt: String,
     val __v: Int
+)
+data class UserInfo(
+    val _id: String,
+    val name: String,
+)
+
+data class TipoVehiculo(
+    val _id: String,
+    val nombreTipo: String,
+    val description: String
+)
+
+data class Zona(
+    val _id: String,
+    val nombreZona: String,
+    val codeZona: String
 )

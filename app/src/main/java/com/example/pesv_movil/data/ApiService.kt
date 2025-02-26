@@ -20,7 +20,7 @@ interface ApiService {
     ): Call<MyResponseVehiculo>
 
     @POST("pesv/user/vehiculos")
-    fun registerVehicle(
+    suspend fun registerVehicle(
         @Header("Authorization") token: String,
         @Body body: VehiculeRequest
     ): Response<Unit>

@@ -78,7 +78,7 @@ fun PesvNavGraph(
         }
 
         composable(PesvScreens.FORM_VEHICLE_SCREEN){
-            FormVehicleScreen(navController = navController)
+            FormVehicleScreen(navController = navController, onClose = { navController.popBackStack()})
         }
     }
 }

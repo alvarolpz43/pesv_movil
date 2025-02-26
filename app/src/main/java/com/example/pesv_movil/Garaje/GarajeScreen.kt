@@ -76,7 +76,9 @@ fun GarajeScreen(
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
             )
 
-            FetchMyVehiculos(tokenManager = tokenManager, apiService = apiService)
+            Box(modifier = Modifier.fillMaxSize()) {
+                FetchMyVehiculos(tokenManager = tokenManager, apiService = apiService)
+            }
         }
     }
 }
@@ -88,7 +90,7 @@ fun FetchMyVehiculos(tokenManager: TokenManager, apiService: ApiService) {
             try {
                 val tokenValue = tokenManager.token.first() ?: ""
                 val userId = tokenManager.getUserIdBlocking() ?: ""
-                Log.d("FetchMyVehiculos", "ID del usuario: $userId")
+                Log.d("FetchMyVehiculosId", "ID del usuario: $userId")
 
                 val call = apiService.getMyVehiculos("Bearer $tokenValue", userId)
                 val response = call.execute()
