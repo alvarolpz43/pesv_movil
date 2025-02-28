@@ -35,4 +35,12 @@ class PesvNavigationActions (private val navController: NavHostController) {
         }
 
     }
+
+    fun navigateToDesplazamientos() {
+        navController.navigate(PesvScreens.FORM_VEHICLE_SCREEN) {
+            popUpTo(PesvScreens.DESPLAZAMIENTOS_SCREEN) { inclusive = false }
+            launchSingleTop = true
+        }
+
+    }
 }

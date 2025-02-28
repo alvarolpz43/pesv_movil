@@ -16,6 +16,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.pesv_movil.Garaje.FormVehicleScreen
 import com.example.pesv_movil.Garaje.GarajeScreen
+import com.example.pesv_movil.desplazamientos.MapaScreen
 import com.example.pesv_movil.home.HomeScreen
 import com.example.pesv_movil.login.domain.LoginUseCase
 import com.example.pesv_movil.login.ui.LoginScreen
@@ -53,6 +54,10 @@ fun PesvNavGraph(
     ) {
         composable(PesvScreens.LOGIN_SCREEN) {
             LoginScreen(navController = navController, loginViewModel = loginViewModel)
+        }
+
+        composable(PesvScreens.DESPLAZAMIENTOS_SCREEN) {
+            MapaScreen(navController= navController, modifier = Modifier)
         }
 
 
