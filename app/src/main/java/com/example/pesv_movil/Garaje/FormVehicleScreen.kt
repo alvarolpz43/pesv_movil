@@ -20,6 +20,8 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -35,6 +37,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
@@ -46,6 +49,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.text.input.ImeAction
@@ -77,6 +81,8 @@ fun FormVehicleScreen(navController: NavController, onClose: () -> Unit) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
     val isLoading = remember { mutableStateOf(false) }
+    var showSuccessDialog by remember { mutableStateOf(false) }
+    var isSuccessful by remember { mutableStateOf(false) }
 
 
     var tipoSeleccionadoId by remember { mutableStateOf<String?>(null) }
@@ -189,7 +195,11 @@ fun FormVehicleScreen(navController: NavController, onClose: () -> Unit) {
                                     idTipoVehiculo = tipoSeleccionadoId ?: "",
                                     idClaseVehiculo = claseSeleccionadaId ?: "",
                                     idZona = zonaSeleccionadaId ?: ""
-                                )
+                                ),
+                                onSucces = { success ->
+                                    showSuccessDialog = success
+                                }
+
                             )
                         }
                     },
@@ -204,6 +214,15 @@ fun FormVehicleScreen(navController: NavController, onClose: () -> Unit) {
                         Text("Registrar Vehículo")
                     }
 
+                    if (showSuccessDialog) {
+                        AlertDialogSucces(
+                            onConfirmation = { showSuccessDialog = false },
+                            dialogTitle = "Éxito",
+                            dialogText = "Vehículo registrado con éxito",
+                            icon = Icons.Default.Check
+                        )
+                    }
+
                 }
             }
         }
@@ -216,7 +235,8 @@ suspend fun submitDeliveryForm(
     apiService: ApiService,
     vehicleRequest: VehiculeRequest,
     onClose: () -> Unit,
-    context: Context
+    context: Context,
+    onSucces: (Boolean) -> Unit
 ) {
     val marca = vehicleRequest.marca
     val modelo = vehicleRequest.modeloVehiculo
@@ -275,7 +295,8 @@ suspend fun submitDeliveryForm(
     """.trimIndent()
         )
 
-        Toast.makeText(context, "Vehículo registrado correctamente", Toast.LENGTH_SHORT).show()
+        onSucces(true)
+
     } else {
         val errorBody = response?.errorBody()?.string() ?: "Sin detalles de error"
         val errorCode = response.code() ?: "Codigo no disponible"
@@ -310,6 +331,38 @@ fun MarcaInput(marca: MutableState<String>) {
     }
 
 
+}
+
+@Composable
+fun AlertDialogSucces(
+    onConfirmation: () -> Unit,
+    dialogTitle: String,
+    dialogText: String,
+    icon: ImageVector,
+) {
+    AlertDialog(
+        icon = {
+            Icon(icon, contentDescription = "Example Icon")
+        },
+        title = {
+            Text(text = dialogTitle)
+        },
+        text = {
+            Text(text = dialogText)
+        },
+        onDismissRequest = {
+            onConfirmation()
+        },
+        confirmButton = {
+            TextButton(
+                onClick = {
+                    onConfirmation()
+                }
+            ) {
+                Text("Confirm")
+            }
+        }
+    )
 }
 
 @Composable
@@ -517,7 +570,7 @@ fun SelectServicio(
             value = selectedOption?.name ?: "",
             onValueChange = { selectedOption?._id },
             readOnly = true,
-            label = { Text("Selecciona el Servicio") },
+            label = { Text("Selecciona el Tipo de Document") },
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             },
