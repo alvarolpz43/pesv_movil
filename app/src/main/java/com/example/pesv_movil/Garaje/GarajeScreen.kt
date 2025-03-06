@@ -25,7 +25,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CloudUpload
-import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
@@ -45,7 +44,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -120,15 +118,27 @@ fun GarajeScreen(
             )
 
             Box(modifier = Modifier.fillMaxSize()) {
-                FetchMyVehiculos(tokenManager = tokenManager, apiService = apiService)
+
+                FetchMyVehiculos(
+                    tokenManager = tokenManager,
+                    apiService = apiService,
+                    context = LocalContext.current
+                )
+
+
             }
         }
     }
 }
 
 @Composable
-fun FetchMyVehiculos(tokenManager: TokenManager, apiService: ApiService) {
-    val vehiclesResponse by produceState<MyResponseVehiculo?>(initialValue = null) {
+fun FetchMyVehiculos(tokenManager: TokenManager, apiService: ApiService, context: Context) {
+
+    var refreshUpdates by remember { mutableStateOf(0) }
+    val vehiclesResponse by produceState<MyResponseVehiculo?>(
+        initialValue = null,
+        key1 = refreshUpdates
+    ) {
         withContext(Dispatchers.IO) {
             try {
                 val tokenValue = tokenManager.token.first() ?: ""
@@ -148,6 +158,10 @@ fun FetchMyVehiculos(tokenManager: TokenManager, apiService: ApiService) {
             }
         }
     }
+
+    val vehiclesInUse = vehiclesResponse?.data?.filter { it.vehiculoEnUso }
+    val vehiclesAvailable = vehiclesResponse?.data?.filter { !it.vehiculoEnUso }
+
 
     var showDocumentUploadModal by remember { mutableStateOf(false) }
     var servicioSeleccionadoId by remember { mutableStateOf<String?>(null) }
@@ -175,13 +189,88 @@ fun FetchMyVehiculos(tokenManager: TokenManager, apiService: ApiService) {
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                items(vehiclesResponse!!.data) { vehicle ->
-                    VehicleCard(vehicle = vehicle, onEdit = {}, onDelete = {}, onUploadDocuments = {
-                        selectedVehicleId = vehicle._id
-                        showDocumentUploadModal = true
-                    })
+                if (!vehiclesInUse.isNullOrEmpty()) {
+                    item {
+                        Text(
+                            text = "Vehículos en uso",
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
+                    }
+                    items(vehiclesInUse) { vehicle ->
+                        VehicleCard(
+                            vehicle = vehicle,
+                            onEdit = {},
+                            onDelete = {},
+                            onChangeStatus = {
+                                UpdateStatusVehicleInUsing(
+                                    apiService = apiService,
+                                    idVehicle = vehicle._id,
+                                    context = context,
+                                    tokenManager = tokenManager
+                                ) {
+                                    refreshUpdates ++
+                                }
+                            },
+                            onUploadDocuments = {},
+                            message = "No hay Vehículos en uso"
+                        )
+                    }
+                } else {
+                    item {
+                        Text(
+                            text = "No hay vehículos en uso",
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
+                    }
+                }
+
+                item {
+                    Spacer(modifier = Modifier.height(16.dp))
+                }
+
+                if (!vehiclesAvailable.isNullOrEmpty()) {
+                    item {
+                        Text(
+                            text = "Vehículos disponibles",
+                            style = MaterialTheme.typography.titleMedium,
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
+                    }
+                    items(vehiclesAvailable) { vehicle ->
+                        VehicleCard(
+                            vehicle = vehicle,
+                            onEdit = {},
+                            onChangeStatus = {
+                                UpdateStatusVehicleInUsing(
+                                    apiService = apiService,
+                                    idVehicle = vehicle._id,
+                                    context = context,
+                                    tokenManager = tokenManager
+                                ) {
+                                    refreshUpdates ++
+                                }
+                            },
+                            onDelete = {},
+                            onUploadDocuments = {
+                                selectedVehicleId = vehicle._id
+                                showDocumentUploadModal = true
+                            },
+                            message = "No hay Vehículos Registrados"
+                        )
+                    }
+                } else {
+                    item {
+                        Text(
+                            text = "No hay vehículos disponibles",
+                            style = MaterialTheme.typography.bodyMedium,
+                            modifier = Modifier.padding(vertical = 8.dp)
+                        )
+                    }
                 }
             }
+
         }
     }
 
@@ -206,67 +295,123 @@ fun FetchMyVehiculos(tokenManager: TokenManager, apiService: ApiService) {
 
 @Composable
 fun VehicleCard(
-    vehicle: InfoVehicle,
+    vehicle: InfoVehicle?,
     onEdit: () -> Unit,
+    onChangeStatus: () -> Unit,
     onDelete: () -> Unit,
-    onUploadDocuments: () -> Unit
+    onUploadDocuments: () -> Unit,
+    message: String
 ) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-    ) {
-        Column(modifier = Modifier.padding(16.dp)) {
 
-            Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                Column {
-                    Text(
-                        text = "Marca: ${vehicle.marca}",
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Text(
-                        text = "Modelo: ${vehicle.modeloVehiculo}",
-                        style = MaterialTheme.typography.titleMedium
-                    )
+    if (vehicle != null) {
+        Card(
+            modifier = Modifier.fillMaxWidth(),
+            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+        ) {
+            Column(modifier = Modifier.padding(16.dp)) {
+
+                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+                    Column {
+                        Text(
+                            text = "Marca: ${vehicle.marca}",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Text(
+                            text = "Modelo: ${vehicle.modeloVehiculo}",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Text(
+                            text = "En Uso: ${if (vehicle.vehiculoEnUso) "Si" else "No"}",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                    }
+
+                    Column {
+                        Text(
+                            text = "Placa: ${vehicle.placa}",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+                        Text(
+                            text = "Estado: ${if (vehicle.estadoVehiculo) "Activo" else "Inactivo"}",
+                            style = MaterialTheme.typography.titleMedium
+                        )
+
+                    }
                 }
 
-                Column {
-                    Text(
-                        text = "Placa: ${vehicle.placa}",
-                        style = MaterialTheme.typography.titleMedium
-                    )
-                    Text(
-                        text = "Estado: ${if (vehicle.estadoVehiculo) "Activo" else "Inactivo"}",
-                        style = MaterialTheme.typography.titleMedium
-                    )
 
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Button(onClick = onChangeStatus) {
+                        Icon(Icons.Filled.Edit, contentDescription = "Cambiar estado")
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Cambiar Estado")
+                    }
+                    Button(onClick = onUploadDocuments) {
+                        Icon(Icons.Filled.CloudUpload, contentDescription = "Cargar Documentos")
+                        Spacer(modifier = Modifier.width(8.dp))
+                        Text("Cargar Documentos")
+                    }
+
+
+                }
+
+            }
+        }
+    } else {
+        Text(text = message)
+    }
+
+}
+
+fun UpdateStatusVehicleInUsing(
+    apiService: ApiService,
+    idVehicle: String,
+    context: Context,
+    tokenManager: TokenManager,
+    onSuccess: () -> Unit
+) {
+
+    CoroutineScope(Dispatchers.IO).launch {
+        try {
+
+            val token = tokenManager.token.first() ?: ""
+
+            Log.d("UpdateStatusVehicleInUsing", "el token es : $token")
+
+            val response = apiService.updateVehicleStateUsing("Bearer $token", idVehicle)
+            withContext(Dispatchers.Main) {
+                if (response.isSuccessful) {
+                    onSuccess()
+                    Toast.makeText(
+                        context,
+                        "✅ El vehículo ha sido actualizado con éxito",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    val errorBody = response.errorBody()?.string() ?: "Error desconocido"
+                    Toast.makeText(
+                        context,
+                        "Error al actualizar el estado del vechiculo: $errorBody",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                    Log.e(
+                        "UpdateStatusVehicleInUsing",
+                        "Error al actualizar el estado del vehículo: $errorBody"
+                    )
                 }
             }
 
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                Button(onClick = onEdit) {
-                    Icon(Icons.Filled.Edit, contentDescription = "Editar Vehículo")
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Editar Vehículo")
-                }
-                Button(onClick = onDelete) {
-                    Icon(Icons.Filled.Delete, contentDescription = "Eliminar Vehículo")
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text("Eliminar Vehículo")
-                }
-
-            }
-            Button(onClick = onUploadDocuments) {
-                Icon(Icons.Filled.CloudUpload, contentDescription = "Cargar Documentos")
-                Spacer(modifier = Modifier.width(8.dp))
-                Text("Cargar Documentos")
-            }
-
+        } catch (e: Exception) {
+            Log.e(
+                "UpdateStatusVehicleInUsing",
+                "Error al actualizar el estado del vehículo: ${e.message}"
+            )
         }
     }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -282,7 +427,7 @@ fun DocumentUploadModal(
     var selectedDate by remember { mutableStateOf("") }
     var numberInput by remember { mutableStateOf(TextFieldValue("")) }
     var pdfFilePath by remember { mutableStateOf<Uri?>(null) }
-    val coroutineScope = rememberCoroutineScope()  // Use the coroutine scope
+    val coroutineScope = rememberCoroutineScope()
 
     Log.d("DocumentUploadModal", "ID del vehículo: $idVehicle")
 
@@ -331,7 +476,6 @@ fun DocumentUploadModal(
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 modifier = Modifier.fillMaxWidth()
             ) {
-                // ExposedDropdownMenu to select the service
                 ExposedDropdownMenuBox(
                     expanded = expanded,
                     onExpandedChange = { expanded = !expanded }
@@ -401,13 +545,6 @@ fun DocumentUploadModal(
         confirmButton = {
             TextButton(onClick = {
                 if (selectedOption != null && selectedDate.isNotEmpty() && numberInput.text.isNotEmpty() && pdfFilePath != null) {
-                    onUploadClick(
-                        selectedOption?.nombre ?: "",
-                        selectedDate,
-                        numberInput.text,
-                        pdfFilePath!!.toString()
-                    )
-
                     coroutineScope.launch {
                         SubmitDocumentation(
                             apiService = apiService,
@@ -420,10 +557,11 @@ fun DocumentUploadModal(
                                 documento = pdfFilePath
                             ),
                             context = context,
-                            onClose = { onDismissRequest() }
+                            onClose = {
+                                onDismissRequest()
+                            }
                         )
                     }
-
                 } else {
                     Toast.makeText(
                         context,
@@ -434,6 +572,7 @@ fun DocumentUploadModal(
             }) {
                 Text("Subir Documento")
             }
+
         },
         dismissButton = {
             TextButton(onClick = onDismissRequest) {
@@ -443,22 +582,6 @@ fun DocumentUploadModal(
     )
 }
 
-
-//@Preview
-//@Composable
-//fun PreviewDocumentUploadModal() {
-//    var showModal by remember { mutableStateOf(true) }
-//
-//    if (showModal) {
-//        DocumentUploadModal(
-//            onDismissRequest = { showModal = false },
-//            onUploadClick = { type, date, number, path ->
-//                println("Tipo: $type, Fecha: $date, Número: $number, PDF: $path")
-//                showModal = false
-//            }
-//        )
-//    }
-//}
 
 data class FormDataDocumentation(
     val tipoDocumentoId: String,
@@ -525,9 +648,9 @@ fun SubmitDocumentation(
 
                 if (response.isSuccessful) {
                     withContext(Dispatchers.Main) {
-                        onClose()
                         Toast.makeText(context, "✅ Documento Cargado con éxito", Toast.LENGTH_SHORT)
                             .show()
+                        onClose()
                     }
                 } else {
                     withContext(Dispatchers.Main) {
