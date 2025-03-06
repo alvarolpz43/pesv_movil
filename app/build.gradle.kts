@@ -108,6 +108,11 @@ dependencies {
     //ConstraintLayout es mejor
     implementation(libs.constraint.layout)
 
+
     //Google
     implementation(libs.maps.compose)
+    implementation(libs.play.services.location) //Localitation
+
+    //Places google
+    implementation("com.google.android.libraries.places:places:3.3.0") // Para autocompletado
 }

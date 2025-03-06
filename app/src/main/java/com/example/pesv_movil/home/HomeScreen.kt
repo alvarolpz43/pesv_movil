@@ -94,7 +94,6 @@ fun HomeScreen(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-
                     .padding(horizontal = 16.dp, vertical = 8.dp)
                     .height(120.dp)
                     .constrainAs(buttonDesplazamientos) {
@@ -102,14 +101,14 @@ fun HomeScreen(
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                     }
-                    .clickable { navController.navigate(PesvScreens.DESPLAZAMIENTOS_SCREEN) },
+                    .clickable { navController.navigate(PesvScreens.DESPLAZAMIENTOS_SCREEN) }, //Aqui voy al MapaAcreen
                 elevation = CardDefaults.cardElevation(defaultElevation = 16.dp)
             ) {
                 Row(
                     modifier = Modifier
                         .fillMaxSize()
                         .padding(16.dp), // Espaciado interno
-                    verticalAlignment = Alignment.CenterVertically // Centrar ícono y texto verticalmente
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
 
 
@@ -121,7 +120,7 @@ fun HomeScreen(
                         text = "Desplazamientos",
                         fontSize = 22.sp,
                         fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(start = 8.dp) // Espaciado entre ícono y texto
+                        modifier = Modifier.padding(start = 8.dp)
                     )
                 }
             }

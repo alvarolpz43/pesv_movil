@@ -7,4 +7,5 @@ object PesvScreens {
     const val GARAJE_SCREEN = "garaje"
     const val FORM_VEHICLE_SCREEN = "form_vehicle"
     const val DESPLAZAMIENTOS_SCREEN = "desplazamientos"
+    const val BUSCAR_UBICACION_SCREEN = "buscar_ubicacion"
 }

@@ -3,10 +3,10 @@ package com.example.pesv_movil
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.activity.enableEdgeToEdge
 import com.example.pesv_movil.login.domain.LoginUseCase
 import com.example.pesv_movil.ui.theme.Pesv_movilTheme
 import com.example.pesv_movil.utils.TokenManager
+import com.google.android.libraries.places.api.Places
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -37,6 +37,8 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+
+
     }
 }
 

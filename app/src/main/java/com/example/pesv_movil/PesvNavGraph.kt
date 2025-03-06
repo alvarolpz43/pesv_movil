@@ -1,14 +1,18 @@
 package com.example.pesv_movil
 
+
+import BuscarUbicacionScreen
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -16,7 +20,9 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.example.pesv_movil.Garaje.FormVehicleScreen
 import com.example.pesv_movil.Garaje.GarajeScreen
+
 import com.example.pesv_movil.desplazamientos.MapaScreen
+import com.example.pesv_movil.desplazamientos.DesplazamientosViewModel
 import com.example.pesv_movil.home.HomeScreen
 import com.example.pesv_movil.login.domain.LoginUseCase
 import com.example.pesv_movil.login.ui.LoginScreen
@@ -57,8 +63,24 @@ fun PesvNavGraph(
         }
 
         composable(PesvScreens.DESPLAZAMIENTOS_SCREEN) {
-            MapaScreen(navController= navController, modifier = Modifier)
+            val desplazamientosViewModel: DesplazamientosViewModel = hiltViewModel()
+
+            val origen by desplazamientosViewModel.origenSeleccionado.collectAsState()
+            val destino by desplazamientosViewModel.destinoSeleccionado.collectAsState()
+
+            MapaScreen(
+                navController = navController,
+                desplazamientosViewModel = desplazamientosViewModel,
+                origenSeleccionado = origen,
+                destinoSeleccionado = destino
+            )
         }
+
+        composable(PesvScreens.BUSCAR_UBICACION_SCREEN) {
+            val desplazamientosViewModel: DesplazamientosViewModel = hiltViewModel() // ✅ Obtén ViewModel correctamente
+            BuscarUbicacionScreen(navController = navController, desplazamientosViewModel = desplazamientosViewModel)
+        }
+
 
 
 
@@ -78,12 +100,18 @@ fun PesvNavGraph(
             AppModalDrawer(
                 drawerState, currentRoute, navActions
             ) {
-                GarajeScreen(navController = navController, openDrawer = {coroutineScope.launch { drawerState.open() }}, tokenManager = tokenManager)
+                GarajeScreen(
+                    navController = navController,
+                    openDrawer = { coroutineScope.launch { drawerState.open() } },
+                    tokenManager = tokenManager
+                )
             }
         }
 
-        composable(PesvScreens.FORM_VEHICLE_SCREEN){
-            FormVehicleScreen(navController = navController, onClose = { navController.popBackStack()})
+        composable(PesvScreens.FORM_VEHICLE_SCREEN) {
+            FormVehicleScreen(
+                navController = navController,
+                onClose = { navController.popBackStack() })
         }
     }
 }
