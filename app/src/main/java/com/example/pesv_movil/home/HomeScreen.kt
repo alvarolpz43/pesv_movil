@@ -4,8 +4,11 @@ import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -170,7 +173,6 @@ fun HomeScreen(
 
 
     }
-
 }
 
 @Composable
@@ -220,27 +222,59 @@ fun NotifyPreoperacional(
     } else {
         if (vehiclesResponse!!.data.isEmpty()) {
             Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center,
-
-
-            ) {
-                Text(
-                    text = "Estás al día, ya completaste el Pre Operacional diario",
-                    fontSize = 20.sp, // Ajusta el tamaño de la fuente según sea necesario
-                    fontWeight = FontWeight.Bold, // Opcional: hace el texto en negrita
-                    textAlign = TextAlign.Center,
-                    modifier = Modifier.padding(16.dp) // Opcional: añade un poco de espacio alrededor
-                )
-            }
-
-        } else {
-            Box(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp), // Agrega padding general
                 contentAlignment = Alignment.Center
             ) {
-                Text("No has realizado el form preoperacional.")
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    CheckIcon() // Ícono de verificación
+
+                    Spacer(modifier = Modifier.height(16.dp)) // Espacio entre el ícono y el texto
+
+                    Text(
+                        text = "Estás al día",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                        color = Color.Black, // Ajusta el color según el tema
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                }
             }
+
+
+        } else {
+
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp), // Agrega padding general
+                contentAlignment = Alignment.Center
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.Center
+                ) {
+                    ClockIcon() //
+
+                    Spacer(modifier = Modifier.height(16.dp)) // Espacio entre el ícono y el texto
+
+                    Text(
+                        text = "Completa tu preoperacional",
+                        fontSize = 20.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                        color = Color.Black, // Ajusta el color según el tema
+                        modifier = Modifier.padding(horizontal = 16.dp)
+                    )
+                }
+
+            }
+
 
         }
     }
