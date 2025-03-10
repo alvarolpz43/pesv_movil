@@ -239,7 +239,7 @@ fun NotifyPreoperacional(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                Text("No has realizado el preoperacional.")
+                Text("No has realizado el form preoperacional.")
             }
 
         }
