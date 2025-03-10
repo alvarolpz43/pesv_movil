@@ -22,6 +22,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import com.example.pesv_movil.Garaje.FormVehicleScreen
 import com.example.pesv_movil.Garaje.GarajeScreen
+import com.example.pesv_movil.Notificaciones.NotificacionesScreen
 
 import com.example.pesv_movil.desplazamientos.MapaScreen
 import com.example.pesv_movil.desplazamientos.DesplazamientosViewModel
@@ -81,12 +82,20 @@ fun PesvNavGraph(
         }
 
         composable(PesvScreens.BUSCAR_UBICACION_SCREEN) {
-            val desplazamientosViewModel: DesplazamientosViewModel = hiltViewModel() // ✅ Obtén ViewModel correctamente
-            BuscarUbicacionScreen(navController = navController, desplazamientosViewModel = desplazamientosViewModel)
+            val desplazamientosViewModel: DesplazamientosViewModel =
+                hiltViewModel() // ✅ Obtén ViewModel correctamente
+            BuscarUbicacionScreen(
+                navController = navController,
+                desplazamientosViewModel = desplazamientosViewModel
+            )
         }
 
-        composable(PesvScreens.PREOPE_SCREEN){
-            PreoperacionalScreen(navController = navController, onClose = {navController.popBackStack()}, tokenManager = tokenManager)
+        composable(PesvScreens.PREOPE_SCREEN) {
+            PreoperacionalScreen(
+                navController = navController,
+                onClose = { navController.popBackStack() },
+                tokenManager = tokenManager
+            )
         }
 
         composable(
@@ -126,6 +135,17 @@ fun PesvNavGraph(
                     navController = navController,
                     openDrawer = { coroutineScope.launch { drawerState.open() } },
                     tokenManager = tokenManager
+                )
+            }
+        }
+        composable(PesvScreens.NOTIFICACIONES_SCREEN) {
+            AppModalDrawer(
+                drawerState, currentRoute, navActions
+            ) {
+                NotificacionesScreen(
+                    navController = navController,
+                    tokenManager = tokenManager,
+                    openDrawer = { coroutineScope.launch { drawerState.open() } }
                 )
             }
         }

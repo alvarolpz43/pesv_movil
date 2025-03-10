@@ -31,6 +31,19 @@ fun HomeTopAppBar(openDrawer: () -> Unit) {
 }
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
+fun NotifyAppBar(openDrawer: () -> Unit) {
+    TopAppBar(
+        title = { Text(text = stringResource(id = R.string.noti_title)) },
+        navigationIcon = {
+            IconButton(onClick = openDrawer) {
+                Icon(Icons.Filled.Menu, stringResource(id = R.string.open_drawer))
+            }
+        },
+        modifier = Modifier.fillMaxWidth()
+    )
+}
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
 fun GarajeTopAppBar(openDrawer: () -> Unit) {
     TopAppBar(
         title = { Text(text = stringResource(id = R.string.garage_title)) },

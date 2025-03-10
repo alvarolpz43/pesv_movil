@@ -3,6 +3,7 @@ package com.example.pesv_movil.data
 import com.example.pesv_movil.Garaje.data.MyResponseDocsVehicle
 import com.example.pesv_movil.Garaje.data.MyResponseVehiculo
 import com.example.pesv_movil.Garaje.data.VehiculeRequest
+import com.example.pesv_movil.Notificaciones.data.MyResponseNotifications
 import com.example.pesv_movil.components.MyResponseSelects
 import com.example.pesv_movil.components.MyResponseTipoDctoVehicle
 import com.example.pesv_movil.preoperacional.data.RequestBodyForm
@@ -17,7 +18,6 @@ import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.Header
 import retrofit2.http.Multipart
-import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Part
@@ -63,6 +63,12 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Path("idVehiculo") idVehiculo: String
     ): Call<ResponseFormById>
+
+
+    @GET("pesv/notificaciones/user")
+    fun getMyNotificaciones(
+        @Header("Authorization") token: String,
+    ): Call<MyResponseNotifications>
 
 
     @POST("pesv/user/vehiculos")

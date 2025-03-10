@@ -22,6 +22,13 @@ class PesvNavigationActions (private val navController: NavHostController) {
         }
     }
 
+    fun navigateToNoty() {
+        navController.navigate(PesvScreens.NOTIFICACIONES_SCREEN) {
+            popUpTo(PesvScreens.HOME_SCREEN) { inclusive = false }
+            launchSingleTop = true
+        }
+    }
+
     fun navigateToLogin() {
         navController.navigate(PesvScreens.LOGIN_SCREEN) {
             popUpTo(0) { inclusive = true }

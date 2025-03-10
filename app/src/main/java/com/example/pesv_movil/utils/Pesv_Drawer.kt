@@ -44,7 +44,7 @@ fun AppModalDrawer(
     navigationActions: PesvNavigationActions,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     content: @Composable () -> Unit
-){
+) {
 
 
     ModalNavigationDrawer(
@@ -54,10 +54,11 @@ fun AppModalDrawer(
                 currentRoute = currentRoute,
                 navigateToHome = { navigationActions.navigateToHome() },
                 navigateToGaraje = { navigationActions.navigateToGaraje() },
-                closeDrawer = {coroutineScope.launch { drawerState.close() } }
+                navigateToNoty = {navigationActions.navigateToNoty()},
+                closeDrawer = { coroutineScope.launch { drawerState.close() } }
             )
         }
-    ){
+    ) {
         content()
     }
 }
@@ -67,11 +68,14 @@ private fun AppDrawer(
     currentRoute: String,
     navigateToHome: () -> Unit,
     navigateToGaraje: () -> Unit,
+    navigateToNoty: () -> Unit,
     closeDrawer: () -> Unit,
     modifier: Modifier = Modifier
-){
-    Surface (color = MaterialTheme.colorScheme.background) {
-        Column (modifier = modifier.width(300.dp).fillMaxHeight()) {
+) {
+    Surface(color = MaterialTheme.colorScheme.background) {
+        Column(modifier = modifier
+            .width(300.dp)
+            .fillMaxHeight()) {
             DrawerHeader()
             DrawerButton(
                 painter = painterResource(id = R.drawable.home_icon),
@@ -92,6 +96,16 @@ private fun AppDrawer(
                     closeDrawer()
                 }
             )
+            DrawerButton(
+                painter = painterResource(id = R.drawable.home_icon),
+                label = stringResource(id = R.string.noti_title),
+                isSelected = currentRoute == PesvScreens.NOTIFICACIONES_SCREEN,
+                action = {
+                    navigateToNoty()
+                    closeDrawer()
+                }
+            )
+
         }
     }
 }
@@ -172,6 +186,7 @@ fun PreviewAppDrawer() {
                 currentRoute = PesvScreens.HOME_SCREEN,
                 navigateToHome = {},
                 navigateToGaraje = {},
+                navigateToNoty = {},
                 closeDrawer = {}
             )
         }
