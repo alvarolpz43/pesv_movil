@@ -29,3 +29,4 @@ fun ClockIcon(modifier: Modifier = Modifier.size(50.dp)) {
         modifier = modifier
     )
 }
+

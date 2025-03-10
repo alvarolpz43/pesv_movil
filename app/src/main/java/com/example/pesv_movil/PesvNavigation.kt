@@ -10,4 +10,5 @@ object PesvScreens {
     const val BUSCAR_UBICACION_SCREEN = "buscar_ubicacion"
     const val PREOPE_SCREEN = "preoperacional"
     const val FORM_PREOPE_SCREEN = "form_preoperacional/{vehicleId}"
+    const val NOTIFICACIONES_SCREEN = "notificaciones"
 }
