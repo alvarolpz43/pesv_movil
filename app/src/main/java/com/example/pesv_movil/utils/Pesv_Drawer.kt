@@ -78,7 +78,7 @@ private fun AppDrawer(
             .fillMaxHeight()) {
             DrawerHeader()
             DrawerButton(
-                painter = painterResource(id = R.drawable.home_icon),
+                painter = painterResource(id = R.drawable.ic_home),
                 label = stringResource(id = R.string.home_title),
                 isSelected = currentRoute == PesvScreens.HOME_SCREEN,
                 action = {
@@ -88,7 +88,8 @@ private fun AppDrawer(
             )
 
             DrawerButton(
-                painter = painterResource(id = R.drawable.garage_icon),
+
+                painter = painterResource(id = R.drawable.ic_garage),
                 label = stringResource(id = R.string.garage_title),
                 isSelected = currentRoute == PesvScreens.GARAJE_SCREEN,
                 action = {
