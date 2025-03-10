@@ -34,7 +34,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavController
 import com.example.pesv_movil.core.network.RetrofitHelper
@@ -76,18 +79,23 @@ fun PreoperacionalScreen(navController: NavController, onClose: () -> Unit, toke
             ConstraintLayout(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddingValues)
+
             ) {
                 Column(
                     modifier = Modifier
                         .padding(paddingValues)
                         .fillMaxSize()
                 ) {
+
+
                     Text(
                         text = "Vehiculos Pendientes de Preoperacional",
-                        style = MaterialTheme.typography.headlineSmall,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        fontSize = 23.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
                     )
+
 
                     Box(modifier = Modifier.fillMaxSize()) {
 

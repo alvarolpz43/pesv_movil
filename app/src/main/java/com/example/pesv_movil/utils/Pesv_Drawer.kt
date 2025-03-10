@@ -98,7 +98,7 @@ private fun AppDrawer(
                 }
             )
             DrawerButton(
-                painter = painterResource(id = R.drawable.ic_notify),
+                painter = painterResource(id = R.drawable.id_notify),
                 label = stringResource(id = R.string.noti_title),
                 isSelected = currentRoute == PesvScreens.NOTIFICACIONES_SCREEN,
                 action = {
