@@ -5,6 +5,9 @@ import com.example.pesv_movil.Garaje.data.MyResponseVehiculo
 import com.example.pesv_movil.Garaje.data.VehiculeRequest
 import com.example.pesv_movil.components.MyResponseSelects
 import com.example.pesv_movil.components.MyResponseTipoDctoVehicle
+import com.example.pesv_movil.preoperacional.data.RequestBodyForm
+import com.example.pesv_movil.preoperacional.data.ResponseFormById
+import com.example.pesv_movil.preoperacional.data.ResponseVehicleSinPre
 import okhttp3.MultipartBody
 import okhttp3.RequestBody
 import okhttp3.ResponseBody
@@ -50,10 +53,28 @@ interface ApiService {
         @Header("Authorization") token: String
     ): Call<MyResponseTipoDctoVehicle>
 
+    @GET("pesv/vehiculos/vehiculos-sin-preoperacional")
+    fun getVehicleSinPre(
+        @Header("Authorization") token: String
+    ): Call<ResponseVehicleSinPre>
+
+    @GET("pesv/formularios/vehiculo/{idVehiculo}")
+    fun getFormById(
+        @Header("Authorization") token: String,
+        @Path("idVehiculo") idVehiculo: String
+    ): Call<ResponseFormById>
+
+
     @POST("pesv/user/vehiculos")
     suspend fun registerVehicle(
         @Header("Authorization") token: String,
         @Body body: VehiculeRequest
+    ): Response<Unit>
+
+    @POST("/pesv/preoperacional")
+    suspend fun registerForm(
+        @Header("Authorization") token: String,
+        @Body body: RequestBodyForm
     ): Response<Unit>
 
     @Multipart

@@ -1,6 +1,9 @@
 package com.example.pesv_movil.home
 
+import android.content.Context
+import android.util.Log
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -9,23 +12,37 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.produceState
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.pesv_movil.PesvScreens
+import com.example.pesv_movil.core.network.RetrofitHelper
+import com.example.pesv_movil.data.ApiService
 import com.example.pesv_movil.desplazamientos.DesplazamientosIcon
 import com.example.pesv_movil.desplazamientos.GreenLogo
 import com.example.pesv_movil.desplazamientos.PreoperacionalIcon
+import com.example.pesv_movil.preoperacional.data.ResponseVehicleSinPre
 import com.example.pesv_movil.utils.HomeTopAppBar
 import com.example.pesv_movil.utils.TokenManager
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.withContext
 
 
 @Composable
@@ -34,6 +51,8 @@ fun HomeScreen(
     tokenManager: TokenManager,
     openDrawer: () -> Unit
 ) {
+    val context = LocalContext.current
+    val apiService: ApiService = RetrofitHelper.getRetrofit().create(ApiService::class.java)
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -45,8 +64,10 @@ fun HomeScreen(
                 .fillMaxSize()
                 .padding(paddingValues)
         ) {
-            val (buttonDesplazamientos, buttonPreoperacional, logo) = createRefs()
+            val (buttonDesplazamientos, buttonPreoperacional, logo, notify) = createRefs()
 //            val topGuide = createGuidelineFromTop(0.1f)
+
+
 
             GreenLogo(modifier = Modifier
                 .size(150.dp)
@@ -58,17 +79,35 @@ fun HomeScreen(
 
                 })
 
+            Card (
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .height(120.dp)
+                    .constrainAs(notify) {
+                        top.linkTo(logo.bottom)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
+                    }
+            ) {
+                NotifyPreoperacional(
+                    tokenManager = tokenManager,
+                    apiService = apiService,
+                    context = context,
+                    nav = navController
+                )
+            }
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp)
                     .height(120.dp)
                     .constrainAs(buttonPreoperacional) {
-                        top.linkTo(logo.bottom)
+                        top.linkTo(notify.bottom)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                     }
-                    .clickable { println("Preoperacional clicado") },
+                    .clickable { navController.navigate(PesvScreens.PREOPE_SCREEN) },
                 elevation = CardDefaults.cardElevation(defaultElevation = 16.dp)
             ) {
                 Row(
@@ -128,6 +167,67 @@ fun HomeScreen(
 
 
     }
+
+}
+
+@Composable
+fun NotifyPreoperacional(tokenManager: TokenManager, apiService: ApiService, context: Context, nav: NavController){
+    var refreshUpdates by remember { mutableStateOf(0) }
+    val vehiclesResponse by produceState<ResponseVehicleSinPre?>(
+        initialValue = null,
+        key1 = refreshUpdates
+    ) {
+        withContext(Dispatchers.IO) {
+            try {
+                val tokenValue = tokenManager.token.first() ?: ""
+                val userId = tokenManager.getUserIdBlocking() ?: ""
+                Log.d("FetchMyVehiculosId", "ID del usuario: $userId")
+
+                val call = apiService.getVehicleSinPre("Bearer $tokenValue")
+                val response = call.execute()
+                if (response.isSuccessful) {
+                    value = response.body()
+                    Log.d("FetchMyVehiculos", "Respuesta exitosa: ${response.body()}")
+                } else {
+                    Log.e("FetchMyVehiculos", "Error en la respuesta: ${response.code()}")
+                }
+            } catch (e: Exception) {
+                Log.e("FetchMyVehiculos", "Error fetching vehicles: ${e.message}")
+            }
+        }
+    }
+
+    val vehiclesInUse = vehiclesResponse?.data?.filter { it.vehiculoEnUso }
+
+    var selectedVehicleId by remember { mutableStateOf<String?>(null) }
+
+
+    if (vehiclesResponse == null) {
+        Box(
+            modifier = Modifier.fillMaxSize(),
+            contentAlignment = Alignment.Center
+        ) {
+            CircularProgressIndicator()
+        }
+    } else {
+        if (vehiclesResponse!!.data.isEmpty()) {
+            Box(
+                modifier = Modifier.fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                Text("No hay vehículos para preoperacional.")
+            }
+        } else {
+           Box(
+               modifier = Modifier.fillMaxSize(),
+               contentAlignment = Alignment.Center
+           ){
+               Text("No has realizado el preoperacional.")
+           }
+
+        }
+    }
+
 
 }
 

@@ -14,10 +14,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.pesv_movil.Garaje.FormVehicleScreen
 import com.example.pesv_movil.Garaje.GarajeScreen
 
@@ -28,6 +30,8 @@ import com.example.pesv_movil.login.domain.LoginUseCase
 import com.example.pesv_movil.login.ui.LoginScreen
 import com.example.pesv_movil.login.ui.LoginViewModel
 import com.example.pesv_movil.navigationApp.PesvNavigationActions
+import com.example.pesv_movil.preoperacional.FormPreoperacionalScreen
+import com.example.pesv_movil.preoperacional.PreoperacionalScreen
 import com.example.pesv_movil.utils.AppModalDrawer
 import com.example.pesv_movil.utils.TokenManager
 import kotlinx.coroutines.CoroutineScope
@@ -80,6 +84,24 @@ fun PesvNavGraph(
             val desplazamientosViewModel: DesplazamientosViewModel = hiltViewModel() // ✅ Obtén ViewModel correctamente
             BuscarUbicacionScreen(navController = navController, desplazamientosViewModel = desplazamientosViewModel)
         }
+
+        composable(PesvScreens.PREOPE_SCREEN){
+            PreoperacionalScreen(navController = navController, onClose = {navController.popBackStack()}, tokenManager = tokenManager)
+        }
+
+        composable(
+            route = PesvScreens.FORM_PREOPE_SCREEN,
+            arguments = listOf(navArgument("vehicleId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val vehicleId = backStackEntry.arguments?.getString("vehicleId") ?: ""
+            FormPreoperacionalScreen(
+                navController = navController,
+                onClose = { navController.popBackStack() },
+                tokenManager = tokenManager,
+                vehicleId = vehicleId
+            )
+        }
+
 
 
 
