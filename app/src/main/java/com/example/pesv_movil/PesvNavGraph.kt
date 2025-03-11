@@ -64,7 +64,7 @@ fun PesvNavGraph(
         modifier = modifier
     ) {
         composable(PesvScreens.LOGIN_SCREEN) {
-            LoginScreen(navController = navController, loginViewModel = loginViewModel)
+            LoginScreen(navController = navController, loginViewModel = loginViewModel, tokenManager = tokenManager)
         }
 
         composable(PesvScreens.DESPLAZAMIENTOS_SCREEN) {

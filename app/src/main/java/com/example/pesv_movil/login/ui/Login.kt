@@ -25,15 +25,18 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.pesv_movil.PesvScreens
 import com.example.pesv_movil.R
+import com.example.pesv_movil.utils.TokenManager
 
 @Composable
-fun LoginScreen(loginViewModel: LoginViewModel, navController: NavHostController) {
+fun LoginScreen(loginViewModel: LoginViewModel, navController: NavHostController, tokenManager: TokenManager) {
     val isLoading by loginViewModel.isLoading.observeAsState(initial = false)
     val loginSuccess by loginViewModel.loginSuccess.observeAsState(initial = false)
     val context = LocalContext.current
 
     LaunchedEffect(Unit) {
         loginViewModel.resetLoginState()
+        tokenManager.clearToken()
+
     }
 
     LaunchedEffect(loginSuccess) {
