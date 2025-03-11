@@ -51,7 +51,11 @@ import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PreoperacionalScreen(navController: NavController, onClose: () -> Unit, tokenManager: TokenManager) {
+fun PreoperacionalScreen(
+    navController: NavController,
+    onClose: () -> Unit,
+    tokenManager: TokenManager
+) {
 
     val keyboardController = LocalSoftwareKeyboardController.current
     val apiService: ApiService = RetrofitHelper.getRetrofit().create(ApiService::class.java)
@@ -99,12 +103,12 @@ fun PreoperacionalScreen(navController: NavController, onClose: () -> Unit, toke
 
                     Box(modifier = Modifier.fillMaxSize()) {
 
-                    GetVehiclesStatusInUse(
-                        tokenManager = tokenManager,
-                        apiService =apiService,
-                        context = LocalContext.current,
-                        nav = navController
-                    )
+                        GetVehiclesStatusInUse(
+                            tokenManager = tokenManager,
+                            apiService = apiService,
+                            context = LocalContext.current,
+                            nav = navController
+                        )
 
 
                     }
@@ -117,7 +121,12 @@ fun PreoperacionalScreen(navController: NavController, onClose: () -> Unit, toke
 }
 
 @Composable
-fun GetVehiclesStatusInUse(tokenManager: TokenManager, apiService: ApiService, context: Context, nav: NavController){
+fun GetVehiclesStatusInUse(
+    tokenManager: TokenManager,
+    apiService: ApiService,
+    context: Context,
+    nav: NavController
+) {
     var refreshUpdates by remember { mutableStateOf(0) }
     val vehiclesResponse by produceState<ResponseVehicleSinPre?>(
         initialValue = null,
@@ -212,12 +221,20 @@ fun CardVehicleUsing(
 
     if (vehicle != null) {
         Card(
-            modifier = Modifier.fillMaxWidth().clickable { onClickListener() },
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onClickListener() },
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
 
                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+
+                    Column {
+
+                        VehiculeIcon()
+
+                    }
                     Column {
                         Text(
                             text = "Marca: ${vehicle.marca}",

@@ -1,16 +1,23 @@
 package com.example.pesv_movil.Notificaciones
 
 import android.util.Log
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -22,15 +29,21 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.produceState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavController
 import com.example.pesv_movil.Notificaciones.data.DataNotifications
 import com.example.pesv_movil.Notificaciones.data.MyResponseNotifications
+import com.example.pesv_movil.R
 import com.example.pesv_movil.core.network.RetrofitHelper
 import com.example.pesv_movil.data.ApiService
+import com.example.pesv_movil.preoperacional.RoundedNotify
 import com.example.pesv_movil.utils.NotifyAppBar
 import com.example.pesv_movil.utils.TokenManager
 import kotlinx.coroutines.Dispatchers
@@ -69,7 +82,8 @@ fun NotificacionesScreen(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(horizontal = 16.dp, vertical = 8.dp).constrainAs(notis){
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .constrainAs(notis) {
                         top.linkTo(parent.top)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
@@ -133,7 +147,7 @@ fun GetNotifications(tokenManager: TokenManager, apiService: ApiService) {
         } else {
             LazyColumn(
                 modifier = Modifier.fillMaxSize(),
-                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
+                contentPadding = PaddingValues(horizontal = 5.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 if (!notifications.isNullOrEmpty()) {
@@ -166,41 +180,61 @@ fun NotificationCard(
 ) {
     if (notis != null) {
         val timeAgo = calculateTimeAgo(notis.fechaNotificacion)
-
         Card(
-            modifier = Modifier.fillMaxWidth(),
-            elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 3.dp),
+            elevation = CardDefaults.cardElevation(defaultElevation = 2.dp)
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(12.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween // Mejor distribución en todas las pantallas
+            ) {
+                // Icono de notificación
+                RoundedNotify(modifier = Modifier.size(48.dp)) // Ajusta el tamaño del icono según la pantalla
 
-                Row(
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    modifier = Modifier.fillMaxWidth()
+                Spacer(modifier = Modifier.width(12.dp)) // Espacio entre el icono y el texto
+
+                // Contenido de la notificación
+                Column(
+                    modifier = Modifier
+                        .weight(1f)
+                        .padding(end = 8.dp) // Espacio para evitar que el texto toque los bordes
                 ) {
-                    Column(modifier = Modifier.weight(1f)) {
-                        Text(
-                            text = "Tipo: ${notis.tipoNotificacion}",
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                        Text(
-                            text = "Detalle: ${notis.detalle}",
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                    }
-
                     Text(
-                        text = "Hace $timeAgo",
+
+                        text = " ${notis.tipoNotificacion}",
+                        style = MaterialTheme.typography.titleMedium,
+                        fontWeight = FontWeight.Bold
+                    )
+                    Text(
+                        modifier = Modifier.padding(5.dp),
+                        text = notis.detalle,
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
 
+                // Espacio flexible antes del tiempo
+                Spacer(modifier = Modifier.width(8.dp))
+
+                // Tiempo de la notificación
+                Text(
+                    text = "Hace $timeAgo",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = Color.Gray,
+                    modifier = Modifier.wrapContentWidth(Alignment.End) // Evita que se corte en pantallas pequeñas
+                )
             }
         }
+
+
     } else {
         Text(text = "No hay notificaciones")
     }
 }
-
 
 
 fun calculateTimeAgo(fecha: String): String {
@@ -218,10 +252,13 @@ fun calculateTimeAgo(fecha: String): String {
         when {
             TimeUnit.MILLISECONDS.toMinutes(diffMillis) < 60 ->
                 "${TimeUnit.MILLISECONDS.toMinutes(diffMillis)} minutos"
+
             TimeUnit.MILLISECONDS.toHours(diffMillis) < 24 ->
                 "${TimeUnit.MILLISECONDS.toHours(diffMillis)} horas"
+
             TimeUnit.MILLISECONDS.toDays(diffMillis) < 30 ->
                 "${TimeUnit.MILLISECONDS.toDays(diffMillis)} días"
+
             else ->
                 "Más de un mes"
         }
@@ -231,15 +268,10 @@ fun calculateTimeAgo(fecha: String): String {
 }
 
 
-
-
-
-
-
 @Preview(showBackground = true)
 @Composable
-fun CardNotyPreview(){
+fun CardNotyPreview() {
     NotificationCard(
-        notis = DataNotifications("fsdfsdf", "fsdfsd","sdfsdf","fsdfsdf", false,"fssdfsd")
+        notis = DataNotifications("fsdfsdf", "fsdfsd", "sdfsdf", "fsdfsdf", false, "fssdfsd")
     )
 }
