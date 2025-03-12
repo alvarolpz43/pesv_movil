@@ -28,6 +28,7 @@ import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -55,11 +56,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.pesv_movil.Garaje.data.InfoVehicle
 import com.example.pesv_movil.Garaje.data.MyResponseVehiculo
+import com.example.pesv_movil.Garaje.data.TipoVehiculo
+import com.example.pesv_movil.Garaje.data.UserInfo
+import com.example.pesv_movil.Garaje.data.Zona
 import com.example.pesv_movil.PesvScreens
 import com.example.pesv_movil.components.MyResponseTipoDctoVehicle
 import com.example.pesv_movil.core.network.RetrofitHelper
@@ -96,8 +101,8 @@ fun GarajeScreen(
         floatingActionButton = {
             FloatingActionButton(
                 onClick = { navController.navigate(PesvScreens.FORM_VEHICLE_SCREEN) },
-                containerColor = MaterialTheme.colorScheme.primary
-            ) {
+                contentColor = Color.White,
+                containerColor = Color.Blue) {
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = "Agregar vehículo",
@@ -209,7 +214,7 @@ fun FetchMyVehiculos(tokenManager: TokenManager, apiService: ApiService, context
                                     context = context,
                                     tokenManager = tokenManager
                                 ) {
-                                    refreshUpdates ++
+                                    refreshUpdates++
                                 }
                             },
                             onUploadDocuments = {},
@@ -249,7 +254,7 @@ fun FetchMyVehiculos(tokenManager: TokenManager, apiService: ApiService, context
                                     context = context,
                                     tokenManager = tokenManager
                                 ) {
-                                    refreshUpdates ++
+                                    refreshUpdates++
                                 }
                             },
                             onDelete = {},
@@ -302,16 +307,24 @@ fun VehicleCard(
     onUploadDocuments: () -> Unit,
     message: String
 ) {
-
     if (vehicle != null) {
         Card(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-
-                Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
-                    Column {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
+            ) {
+                // Información del vehículo
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = "Marca: ${vehicle.marca}",
                             style = MaterialTheme.typography.titleMedium
@@ -326,7 +339,7 @@ fun VehicleCard(
                         )
                     }
 
-                    Column {
+                    Column(modifier = Modifier.weight(1f)) {
                         Text(
                             text = "Placa: ${vehicle.placa}",
                             style = MaterialTheme.typography.titleMedium
@@ -335,35 +348,49 @@ fun VehicleCard(
                             text = "Estado: ${if (vehicle.estadoVehiculo) "Activo" else "Inactivo"}",
                             style = MaterialTheme.typography.titleMedium
                         )
-
                     }
                 }
-
 
                 Spacer(modifier = Modifier.height(16.dp))
 
-                Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Button(onClick = onChangeStatus) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                ) {
+                    Button(
+                        onClick = onChangeStatus,
+                        modifier = Modifier.weight(1f),
+                        colors = ButtonDefaults.buttonColors(Color.Blue)
+                    ) {
                         Icon(Icons.Filled.Edit, contentDescription = "Cambiar estado")
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Cambiar Estado")
+                        Text("Cambiar")
                     }
-                    Button(onClick = onUploadDocuments) {
+
+                    Button(
+                        onClick = onUploadDocuments,
+                        modifier = Modifier.weight(1f),
+                        enabled = !vehicle.vehiculoEnUso,
+                        colors = ButtonDefaults.buttonColors(Color.Blue)
+                    ) {
                         Icon(Icons.Filled.CloudUpload, contentDescription = "Cargar Documentos")
                         Spacer(modifier = Modifier.width(8.dp))
-                        Text("Cargar Documentos")
+                        Text("Cargar")
                     }
-
-
                 }
-
             }
         }
     } else {
-        Text(text = message)
+        Text(
+            text = message,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
+            textAlign = TextAlign.Center
+        )
     }
-
 }
+
 
 fun UpdateStatusVehicleInUsing(
     apiService: ApiService,
@@ -734,13 +761,45 @@ suspend fun findIdTipoDocument(
     }
 }
 
-
 @Preview(showBackground = true)
 @Composable
-fun GarajeScreenPreview() {
-    GarajeScreen(
-        navController = androidx.navigation.compose.rememberNavController(),
-        openDrawer = {},
-        tokenManager = TokenManager(LocalContext.current)
+fun VehicleCardPreview() {
+    VehicleCard(
+        vehicle = InfoVehicle(
+            "sdgfdsgdfgdfg",
+            UserInfo("fsdfsdf", "fsdfsdf"),
+            UserInfo("gdfgdg", "fsdfsdf"),
+            "sfgsggdffg",
+            TipoVehiculo("sdfsdfd", "fsdfd", "fsfsd"),
+            Zona("fsffd", "gdfgdf", "gfgdgfd"),
+            "fsdfdsf",
+            "sfdsdfsdf",
+            2,
+            2024,
+            "dfdsfgds",
+            "sdfsdf",
+            "fsddsff",
+            true,
+            true,
+            true,
+            "dssfsdfds",
+            "ggdfgfgd",
+            "sdfsdfsdf", 2
+        ),
+        onEdit = {},
+        onChangeStatus = {},
+        onDelete = {},
+        onUploadDocuments = {},
+        message = "No hay Vehículos Registrados"
     )
 }
+
+//@Preview(showBackground = true)
+//@Composable
+//fun GarajeScreenPreview() {
+//    GarajeScreen(
+//        navController = androidx.navigation.compose.rememberNavController(),
+//        openDrawer = {},
+//        tokenManager = TokenManager(LocalContext.current)
+//    )
+//}
