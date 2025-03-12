@@ -76,6 +76,7 @@ import com.example.pesv_movil.utils.TokenManager
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okhttp3.MediaType.Companion.toMediaType
@@ -138,40 +139,39 @@ fun GarajeScreen(
 
 @Composable
 fun FetchMyVehiculos(tokenManager: TokenManager, apiService: ApiService, context: Context) {
-
     var refreshUpdates by remember { mutableStateOf(0) }
     val vehiclesResponse by produceState<MyResponseVehiculo?>(
         initialValue = null,
         key1 = refreshUpdates
     ) {
-        withContext(Dispatchers.IO) {
-            try {
-                val tokenValue = tokenManager.token.first() ?: ""
+        value = try {
+            withContext(Dispatchers.IO) {
+                val tokenValue = tokenManager.token.firstOrNull() ?: ""
                 val userId = tokenManager.getUserIdBlocking() ?: ""
                 Log.d("FetchMyVehiculosId", "ID del usuario: $userId")
 
                 val call = apiService.getMyVehiculos("Bearer $tokenValue")
                 val response = call.execute()
                 if (response.isSuccessful) {
-                    value = response.body()
                     Log.d("FetchMyVehiculos", "Respuesta exitosa: ${response.body()}")
+                    response.body()
                 } else {
                     Log.e("FetchMyVehiculos", "Error en la respuesta: ${response.code()}")
+                    null
                 }
-            } catch (e: Exception) {
-                Log.e("FetchMyVehiculos", "Error fetching vehicles: ${e.message}")
             }
+        } catch (e: Exception) {
+            Log.e("FetchMyVehiculos", "Error fetching vehicles: ${e.message}")
+            null
         }
     }
 
-    val vehiclesInUse = vehiclesResponse?.data?.filter { it.vehiculoEnUso }
-    val vehiclesAvailable = vehiclesResponse?.data?.filter { !it.vehiculoEnUso }
-
+    val vehiclesInUse = vehiclesResponse?.data?.filter { it.vehiculoEnUso } ?: emptyList()
+    val vehiclesAvailable = vehiclesResponse?.data?.filter { !it.vehiculoEnUso } ?: emptyList()
 
     var showDocumentUploadModal by remember { mutableStateOf(false) }
     var servicioSeleccionadoId by remember { mutableStateOf<String?>(null) }
     var selectedVehicleId by remember { mutableStateOf<String?>(null) }
-
 
     if (vehiclesResponse == null) {
         Box(
@@ -181,7 +181,7 @@ fun FetchMyVehiculos(tokenManager: TokenManager, apiService: ApiService, context
             CircularProgressIndicator()
         }
     } else {
-        if (vehiclesResponse!!.data.isEmpty()) {
+        if (vehiclesResponse?.data?.isEmpty() == true) {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
@@ -194,7 +194,7 @@ fun FetchMyVehiculos(tokenManager: TokenManager, apiService: ApiService, context
                 contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                if (!vehiclesInUse.isNullOrEmpty()) {
+                if (vehiclesInUse.isNotEmpty()) {
                     item {
                         Text(
                             text = "Vehículos en uso",
@@ -235,7 +235,7 @@ fun FetchMyVehiculos(tokenManager: TokenManager, apiService: ApiService, context
                     Spacer(modifier = Modifier.height(16.dp))
                 }
 
-                if (!vehiclesAvailable.isNullOrEmpty()) {
+                if (vehiclesAvailable.isNotEmpty()) {
                     item {
                         Text(
                             text = "Vehículos disponibles",
@@ -275,7 +275,6 @@ fun FetchMyVehiculos(tokenManager: TokenManager, apiService: ApiService, context
                     }
                 }
             }
-
         }
     }
 
