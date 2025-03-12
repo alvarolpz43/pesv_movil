@@ -48,6 +48,7 @@ import com.example.pesv_movil.utils.NotifyAppBar
 import com.example.pesv_movil.utils.TokenManager
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.withContext
 import java.text.SimpleDateFormat
 import java.util.Date
@@ -104,30 +105,30 @@ fun NotificacionesScreen(
 
 @Composable
 fun GetNotifications(tokenManager: TokenManager, apiService: ApiService) {
-
     val notiResponse by produceState<MyResponseNotifications?>(
         initialValue = null,
     ) {
-        withContext(Dispatchers.IO) {
-            try {
-                val tokenValue = tokenManager.token.first() ?: ""
-
+        value = try {
+            withContext(Dispatchers.IO) {
+                val tokenValue = tokenManager.token.firstOrNull() ?: ""
 
                 val call = apiService.getMyNotificaciones("Bearer $tokenValue")
                 val response = call.execute()
                 if (response.isSuccessful) {
-                    value = response.body()
-                    Log.d("FetchNotificatios", "Respuesta exitosa: ${response.body()}")
+                    Log.d("FetchNotifications", "Respuesta exitosa: ${response.body()}")
+                    response.body()
                 } else {
-                    Log.e("FetchNotificatios", "Error en la respuesta: ${response.code()}")
+                    Log.e("FetchNotifications", "Error en la respuesta: ${response.code()}")
+                    null
                 }
-            } catch (e: Exception) {
-                Log.e("FetchNotificatios", "Error fetching notifications: ${e.message}")
             }
+        } catch (e: Exception) {
+            Log.e("FetchNotifications", "Error fetching notifications: ${e.message}")
+            null
         }
     }
 
-    val notifications = notiResponse?.data?.filter { !it.leida }
+    val notifications = notiResponse?.data?.filter { !it.leida } ?: emptyList()
 
     if (notiResponse == null) {
         Box(
@@ -137,12 +138,12 @@ fun GetNotifications(tokenManager: TokenManager, apiService: ApiService) {
             CircularProgressIndicator()
         }
     } else {
-        if (notiResponse!!.data.isEmpty()) {
+        if (notiResponse?.data?.isEmpty() == true) {
             Box(
                 modifier = Modifier.fillMaxSize(),
                 contentAlignment = Alignment.Center
             ) {
-                Text("No hay vehículos para preoperacional.")
+                Text("No hay notificaciones.")
             }
         } else {
             LazyColumn(
@@ -150,12 +151,9 @@ fun GetNotifications(tokenManager: TokenManager, apiService: ApiService) {
                 contentPadding = PaddingValues(horizontal = 5.dp, vertical = 8.dp),
                 verticalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                if (!notifications.isNullOrEmpty()) {
+                if (notifications.isNotEmpty()) {
                     items(notifications) { notis ->
-
-                        NotificationCard(
-                            notis = notis
-                        )
+                        NotificationCard(notis = notis)
                     }
                 } else {
                     item {
@@ -166,12 +164,11 @@ fun GetNotifications(tokenManager: TokenManager, apiService: ApiService) {
                         )
                     }
                 }
-
             }
         }
     }
-
 }
+
 
 
 @Composable
