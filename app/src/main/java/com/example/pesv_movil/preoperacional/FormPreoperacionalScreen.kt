@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
@@ -38,6 +39,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.pesv_movil.core.network.RetrofitHelper
@@ -72,7 +74,7 @@ fun FormPreoperacionalScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Preoperacional - vehicle ID: $vehicleId") },
+                title = { Text("Formulario Preoperacional") },
                 navigationIcon = {
                     IconButton(onClick = {
                         navController.popBackStack()
@@ -88,11 +90,7 @@ fun FormPreoperacionalScreen(
                     .fillMaxSize()
                     .padding(paddingValues)
             ) {
-                Text(
-                    text = "Formulario de Preoperacional",
-                    style = MaterialTheme.typography.headlineSmall,
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
-                )
+
 
                 // **Asegurar que el formulario ocupe todo el espacio disponible**
                 Column(
@@ -221,13 +219,31 @@ fun CardForm(
 
     if (form != null) {
         Card(
-            modifier = Modifier.fillMaxWidth(),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(text = form.preguntaTexto, style = MaterialTheme.typography.titleMedium)
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Text(
+                    text = form.preguntaTexto,
+                    style = MaterialTheme.typography.titleMedium,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.fillMaxWidth()
+                )
 
-                Row(verticalAlignment = Alignment.CenterVertically) {
+                Spacer(modifier = Modifier.height(12.dp))
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.Center,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
                     Checkbox(
                         checked = selectedAnswer.value == true,
                         onCheckedChange = {
@@ -235,9 +251,9 @@ fun CardForm(
                             onAnswerSelected(form._id, true)
                         }
                     )
-                    Text(text = "Sí")
+                    Text(text = "Sí", modifier = Modifier.padding(start = 4.dp))
 
-                    Spacer(modifier = Modifier.width(16.dp))
+                    Spacer(modifier = Modifier.width(24.dp))
 
                     Checkbox(
                         checked = selectedAnswer.value == false,
@@ -246,10 +262,11 @@ fun CardForm(
                             onAnswerSelected(form._id, false)
                         }
                     )
-                    Text(text = "No")
+                    Text(text = "No", modifier = Modifier.padding(start = 4.dp))
                 }
             }
         }
+
     } else {
         Text(text = message)
     }

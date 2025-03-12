@@ -34,7 +34,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavController
 import com.example.pesv_movil.core.network.RetrofitHelper
@@ -48,7 +51,11 @@ import kotlinx.coroutines.withContext
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PreoperacionalScreen(navController: NavController, onClose: () -> Unit, tokenManager: TokenManager) {
+fun PreoperacionalScreen(
+    navController: NavController,
+    onClose: () -> Unit,
+    tokenManager: TokenManager
+) {
 
     val keyboardController = LocalSoftwareKeyboardController.current
     val apiService: ApiService = RetrofitHelper.getRetrofit().create(ApiService::class.java)
@@ -76,27 +83,32 @@ fun PreoperacionalScreen(navController: NavController, onClose: () -> Unit, toke
             ConstraintLayout(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(paddingValues)
+
             ) {
                 Column(
                     modifier = Modifier
                         .padding(paddingValues)
                         .fillMaxSize()
                 ) {
+
+
                     Text(
                         text = "Vehiculos Pendientes de Preoperacional",
-                        style = MaterialTheme.typography.headlineSmall,
-                        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp)
+                        fontSize = 23.sp,
+                        fontWeight = FontWeight.Bold,
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.fillMaxWidth()
                     )
+
 
                     Box(modifier = Modifier.fillMaxSize()) {
 
-                    GetVehiclesStatusInUse(
-                        tokenManager = tokenManager,
-                        apiService =apiService,
-                        context = LocalContext.current,
-                        nav = navController
-                    )
+                        GetVehiclesStatusInUse(
+                            tokenManager = tokenManager,
+                            apiService = apiService,
+                            context = LocalContext.current,
+                            nav = navController
+                        )
 
 
                     }
@@ -109,7 +121,12 @@ fun PreoperacionalScreen(navController: NavController, onClose: () -> Unit, toke
 }
 
 @Composable
-fun GetVehiclesStatusInUse(tokenManager: TokenManager, apiService: ApiService, context: Context, nav: NavController){
+fun GetVehiclesStatusInUse(
+    tokenManager: TokenManager,
+    apiService: ApiService,
+    context: Context,
+    nav: NavController
+) {
     var refreshUpdates by remember { mutableStateOf(0) }
     val vehiclesResponse by produceState<ResponseVehicleSinPre?>(
         initialValue = null,
@@ -204,12 +221,20 @@ fun CardVehicleUsing(
 
     if (vehicle != null) {
         Card(
-            modifier = Modifier.fillMaxWidth().clickable { onClickListener() },
+            modifier = Modifier
+                .fillMaxWidth()
+                .clickable { onClickListener() },
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
             Column(modifier = Modifier.padding(16.dp)) {
 
                 Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+
+                    Column {
+
+                        VehiculeIcon()
+
+                    }
                     Column {
                         Text(
                             text = "Marca: ${vehicle.marca}",

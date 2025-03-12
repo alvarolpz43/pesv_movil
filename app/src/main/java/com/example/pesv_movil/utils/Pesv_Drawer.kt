@@ -7,7 +7,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -28,12 +27,10 @@ import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.pesv_movil.PesvScreens
 import com.example.pesv_movil.R
 import com.example.pesv_movil.navigationApp.PesvNavigationActions
-import com.example.pesv_movil.ui.theme.Pesv_movilTheme
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -55,8 +52,8 @@ fun AppModalDrawer(
                 navigateToHome = { navigationActions.navigateToHome() },
                 navigateToGaraje = { navigationActions.navigateToGaraje() },
                 navigateToNoty = {navigationActions.navigateToNoty()},
-                closeDrawer = { coroutineScope.launch { drawerState.close() } }
-            )
+                closeDrawer = { coroutineScope.launch { drawerState.close() } },
+                navigateToLogin = {navigationActions.navigateToLogin()})
         }
     ) {
         content()
@@ -69,9 +66,9 @@ private fun AppDrawer(
     navigateToHome: () -> Unit,
     navigateToGaraje: () -> Unit,
     navigateToNoty: () -> Unit,
+    navigateToLogin:()-> Unit,
     closeDrawer: () -> Unit,
-    modifier: Modifier = Modifier
-) {
+    modifier: Modifier = Modifier) {
     Surface(color = MaterialTheme.colorScheme.background) {
         Column(modifier = modifier
             .width(300.dp)
@@ -98,7 +95,7 @@ private fun AppDrawer(
                 }
             )
             DrawerButton(
-                painter = painterResource(id = R.drawable.home_icon),
+                painter = painterResource(id = R.drawable.id_notify),
                 label = stringResource(id = R.string.noti_title),
                 isSelected = currentRoute == PesvScreens.NOTIFICACIONES_SCREEN,
                 action = {
@@ -106,10 +103,23 @@ private fun AppDrawer(
                     closeDrawer()
                 }
             )
+            Spacer(modifier = Modifier.weight(1f))
+            DrawerButton(
+                painter = painterResource(id = R.drawable.ic_clock),
+                label = stringResource(id = R.string.logOut),
+                isSelected = false,
+                action = {
+                    closeDrawer()
+                    navigateToLogin()
+                    }
+
+            )
 
         }
     }
 }
+
+
 
 
 @Composable
@@ -178,21 +188,21 @@ private fun DrawerButton(
     }
 }
 
-@Preview("Drawer contents")
-@Composable
-fun PreviewAppDrawer() {
-    Pesv_movilTheme {
-        Surface {
-            AppDrawer(
-                currentRoute = PesvScreens.HOME_SCREEN,
-                navigateToHome = {},
-                navigateToGaraje = {},
-                navigateToNoty = {},
-                closeDrawer = {}
-            )
-        }
-    }
-}
+//@Preview("Drawer contents")
+//@Composable
+//fun PreviewAppDrawer() {
+//    Pesv_movilTheme {
+//        Surface {
+//            AppDrawer(
+//                currentRoute = PesvScreens.HOME_SCREEN,
+//                navigateToHome = {},
+//                navigateToGaraje = {},
+//                navigateToNoty = {},
+//                closeDrawer = {}
+//            )
+//        }
+//    }
+//}
 
 
 
