@@ -8,6 +8,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -25,8 +26,10 @@ import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.magnifier
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ChangeCircle
 import androidx.compose.material.icons.filled.CloudUpload
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material3.AlertDialog
@@ -104,10 +107,6 @@ fun GarajeScreen(
     openDrawer: () -> Unit,
     tokenManager: TokenManager
 ) {
-
-
-
-
 
 
     val apiService: ApiService = RetrofitHelper.getRetrofit().create(ApiService::class.java)
@@ -221,6 +220,7 @@ fun FetchMyVehiculos(tokenManager: TokenManager, apiService: ApiService, context
                     }
                     items(vehiclesInUse) { vehicle ->
                         VehicleCard(
+
                             vehicle = vehicle,
                             onEdit = {},
                             onDelete = {},
@@ -235,8 +235,10 @@ fun FetchMyVehiculos(tokenManager: TokenManager, apiService: ApiService, context
                                 }
                             },
                             onUploadDocuments = {},
-                            message = "No hay Vehículos en uso"
-                        )
+                            message = "No hay Vehículos en uso",
+                            modifier = Modifier.border(2.dp, colorResource(id = R.color.black)),
+
+                            )
                     }
                 } else {
                     item {
@@ -279,7 +281,8 @@ fun FetchMyVehiculos(tokenManager: TokenManager, apiService: ApiService, context
                                 selectedVehicleId = vehicle._id
                                 showDocumentUploadModal = true
                             },
-                            message = "No hay Vehículos Registrados"
+                            message = "No hay Vehículos Registrados",
+                            modifier = Modifier,
                         )
                     }
                 } else {
@@ -321,7 +324,8 @@ fun VehicleCard(
     onChangeStatus: () -> Unit,
     onDelete: () -> Unit,
     onUploadDocuments: () -> Unit,
-    message: String
+    message: String,
+    modifier: Modifier
 ) {
     if (vehicle != null) {
         Card(
@@ -371,21 +375,40 @@ fun VehicleCard(
 
                 ) {
 
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_garage),
-                        contentDescription = null,
-                        modifier = Modifier.size(20.dp), // Tamaño del icono
+                    if (vehicle.idClaseVehiculo == "67a50fff122183dc3aaddbae") {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_moto),
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp), // Tamaño del icono
 
-                    )
+                        )
+                    } else {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_garage),
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp), // Tamaño del icono
+
+                        )
+                    }
+
+
                     Text(
-
-
                         text = " ${vehicle.placa}",
                         style = MaterialTheme.typography.titleSmall,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
 
 
+                    )
+
+                    Text(
+                        modifier = Modifier
+
+                            .padding(start = 3.dp),
+                        text = " ${vehicle.idTipoVehiculo.nombreTipo}",
+                        style = MaterialTheme.typography.titleSmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
                     )
 
                     Text(
@@ -458,10 +481,10 @@ fun VehicleCard(
                         onClick = onChangeStatus,
                         modifier = Modifier
                             .weight(1f),
+                        colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.primary))
 
-                        colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
                     ) {
-                        Icon(Icons.Filled.Edit, contentDescription = "Cambiar estado")
+                        Icon(Icons.Filled.ChangeCircle, contentDescription = "Cambiar estado")
                         if (LocalConfiguration.current.screenWidthDp > 360) {
                             Spacer(modifier = Modifier.width(8.dp))
                             Text("Cambiar")
@@ -471,10 +494,9 @@ fun VehicleCard(
                     Button(
                         onClick = onUploadDocuments,
                         modifier = Modifier
-                            .weight(1f)
-                            .defaultMinSize(minWidth = 48.dp, minHeight = 48.dp),
+                            .weight(1f),
                         enabled = !vehicle.vehiculoEnUso,
-                        colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
+                        colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.secondary))
                     ) {
                         Icon(Icons.Filled.CloudUpload, contentDescription = "Cargar Documentos")
                         if (LocalConfiguration.current.screenWidthDp > 360) {
@@ -895,7 +917,8 @@ fun VehicleCardPreview() {
         onChangeStatus = {},
         onDelete = {},
         onUploadDocuments = {},
-        message = "No hay Vehículos Registrados"
+        message = "No hay Vehículos Registrados",
+        modifier = Modifier,
     )
 }
 
