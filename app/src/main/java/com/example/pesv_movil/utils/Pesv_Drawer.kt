@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.Icon
@@ -24,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -105,7 +107,7 @@ private fun AppDrawer(
             )
             Spacer(modifier = Modifier.weight(1f))
             DrawerButton(
-                painter = painterResource(id = R.drawable.ic_clock),
+                painter = painterResource(id = R.drawable.ic_logout),
                 label = stringResource(id = R.string.logOut),
                 isSelected = false,
                 action = {
@@ -173,11 +175,16 @@ private fun DrawerButton(
             verticalAlignment = Alignment.CenterVertically,
             modifier = Modifier.fillMaxWidth()
         ) {
+
+
             Icon(
                 painter = painter,
-                contentDescription = null, // decorative
-                tint = tintColor
+                contentDescription = null,
+                modifier = Modifier.size(30.dp), // Tamaño del icono
+                tint = if (isSelected) colorResource(id = R.color.primary)
+                else colorResource(id = R.color.black)
             )
+
             Spacer(Modifier.width(16.dp))
             Text(
                 text = label,

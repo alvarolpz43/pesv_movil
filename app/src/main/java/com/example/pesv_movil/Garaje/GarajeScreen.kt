@@ -14,14 +14,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.magnifier
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.CloudUpload
@@ -54,11 +57,16 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavHostController
 import com.example.pesv_movil.Garaje.data.InfoVehicle
 import com.example.pesv_movil.Garaje.data.MyResponseVehiculo
@@ -66,6 +74,7 @@ import com.example.pesv_movil.Garaje.data.TipoVehiculo
 import com.example.pesv_movil.Garaje.data.UserInfo
 import com.example.pesv_movil.Garaje.data.Zona
 import com.example.pesv_movil.PesvScreens
+import com.example.pesv_movil.R
 import com.example.pesv_movil.components.MyResponseTipoDctoVehicle
 import com.example.pesv_movil.core.network.RetrofitHelper
 import com.example.pesv_movil.data.ApiService
@@ -86,6 +95,7 @@ import okhttp3.RequestBody.Companion.asRequestBody
 import okhttp3.RequestBody.Companion.toRequestBody
 import java.io.File
 import java.io.IOException
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
 
 @Composable
@@ -94,6 +104,12 @@ fun GarajeScreen(
     openDrawer: () -> Unit,
     tokenManager: TokenManager
 ) {
+
+
+
+
+
+
     val apiService: ApiService = RetrofitHelper.getRetrofit().create(ApiService::class.java)
 
     Scaffold(
@@ -103,7 +119,8 @@ fun GarajeScreen(
             FloatingActionButton(
                 onClick = { navController.navigate(PesvScreens.FORM_VEHICLE_SCREEN) },
                 contentColor = Color.White,
-                containerColor = Color.Blue) {
+                containerColor = Color.Blue
+            ) {
                 Icon(
                     imageVector = Icons.Default.Add,
                     contentDescription = "Agregar vehículo",
@@ -309,72 +326,161 @@ fun VehicleCard(
     if (vehicle != null) {
         Card(
             modifier = Modifier
-                .fillMaxWidth()
+
                 .padding(8.dp),
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
+
+            ConstraintLayout(
+                modifier = Modifier
+                    .padding(5.dp)
+            ) {
+
+                val (title, subTitle, infoVehicule) = createRefs()
+
+                Row(
+                    modifier = Modifier
+                        .constrainAs(title) {
+                            top.linkTo(parent.top)
+                            end.linkTo(parent.end)
+                            start.linkTo(parent.start)
+
+                        }
+
+                ) {
+
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        text = "${vehicle.marca} ${vehicle.modeloVehiculo}",
+                        style = MaterialTheme.typography.titleLarge,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
+
+                Row(
+                    modifier = Modifier
+                        .padding(3.dp)
+                        .constrainAs(subTitle) {
+                            top.linkTo(title.bottom)
+                            end.linkTo(parent.end)
+                            start.linkTo(parent.start)
+
+                        }
+
+                ) {
+
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_garage),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp), // Tamaño del icono
+
+                    )
+                    Text(
+
+
+                        text = " ${vehicle.placa}",
+                        style = MaterialTheme.typography.titleSmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+
+
+                    )
+
+                    Text(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 3.dp),
+                        text = " ${vehicle.fechaMatricula}",
+                        style = MaterialTheme.typography.titleSmall,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
+
+
+            }
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
+                    .padding(8.dp)
             ) {
-                // Información del vehículo
                 Row(
                     modifier = Modifier.fillMaxWidth(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
+
                     Column(modifier = Modifier.weight(1f)) {
+
                         Text(
-                            text = "Marca: ${vehicle.marca}",
-                            style = MaterialTheme.typography.titleMedium
+                            text = "Color: ${vehicle.color}",
+                            style = MaterialTheme.typography.titleSmall,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                         Text(
-                            text = "Modelo: ${vehicle.modeloVehiculo}",
-                            style = MaterialTheme.typography.titleMedium
-                        )
-                        Text(
-                            text = "En Uso: ${if (vehicle.vehiculoEnUso) "Si" else "No"}",
-                            style = MaterialTheme.typography.titleMedium
+                            text = "Estado: ${if (vehicle.estadoVehiculo) "Si" else "No"}",
+                            style = MaterialTheme.typography.titleSmall,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
 
                     Column(modifier = Modifier.weight(1f)) {
                         Text(
-                            text = "Placa: ${vehicle.placa}",
-                            style = MaterialTheme.typography.titleMedium
+                            text = "Capacidad: ${vehicle.capacidadVehiculo}",
+                            style = MaterialTheme.typography.titleSmall,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
+
                         Text(
-                            text = "Estado: ${if (vehicle.estadoVehiculo) "Activo" else "Inactivo"}",
-                            style = MaterialTheme.typography.titleMedium
+                            text = "Zona: ${vehicle.idZona.nombreZona}",
+                            style = MaterialTheme.typography.titleSmall,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
+
                     }
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.spacedBy(16.dp)
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(horizontal = 16.dp),
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
                 ) {
                     Button(
                         onClick = onChangeStatus,
-                        modifier = Modifier.weight(1f),
-                        colors = ButtonDefaults.buttonColors(Color.Blue)
+                        modifier = Modifier
+                            .weight(1f),
+
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
                     ) {
                         Icon(Icons.Filled.Edit, contentDescription = "Cambiar estado")
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Cambiar")
+                        if (LocalConfiguration.current.screenWidthDp > 360) {
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Cambiar")
+                        }
                     }
 
                     Button(
                         onClick = onUploadDocuments,
-                        modifier = Modifier.weight(1f),
+                        modifier = Modifier
+                            .weight(1f)
+                            .defaultMinSize(minWidth = 48.dp, minHeight = 48.dp),
                         enabled = !vehicle.vehiculoEnUso,
-                        colors = ButtonDefaults.buttonColors(Color.Blue)
+                        colors = ButtonDefaults.buttonColors(containerColor = Color.Blue)
                     ) {
                         Icon(Icons.Filled.CloudUpload, contentDescription = "Cargar Documentos")
-                        Spacer(modifier = Modifier.width(8.dp))
-                        Text("Cargar")
+                        if (LocalConfiguration.current.screenWidthDp > 360) {
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Cargar")
+                        }
                     }
                 }
             }
@@ -765,25 +871,25 @@ suspend fun findIdTipoDocument(
 fun VehicleCardPreview() {
     VehicleCard(
         vehicle = InfoVehicle(
-            "sdgfdsgdfgdfg",
-            UserInfo("fsdfsdf", "fsdfsdf"),
-            UserInfo("gdfgdg", "fsdfsdf"),
+            "id",
+            UserInfo("user", "user"),
+            UserInfo("user", "user"),
             "sfgsggdffg",
-            TipoVehiculo("sdfsdfd", "fsdfd", "fsfsd"),
-            Zona("fsffd", "gdfgdf", "gfgdgfd"),
-            "fsdfdsf",
-            "sfdsdfsdf",
+            TipoVehiculo("sdfsdfd", "fsdfd", "El Vehiculo"),
+            Zona("zona", "Norte", "1"),
+            "marca",
+            "service",
             2,
             2024,
-            "dfdsfgds",
-            "sdfsdf",
-            "fsddsff",
+            "verde",
+            "fecha",
+            "NEL02C",
             true,
             true,
             true,
-            "dssfsdfds",
-            "ggdfgfgd",
-            "sdfsdfsdf", 2
+            "fechaCracion",
+            "fechas",
+            "feachas", 2
         ),
         onEdit = {},
         onChangeStatus = {},
