@@ -8,6 +8,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -259,8 +260,8 @@ fun FetchMyVehiculos(tokenManager: TokenManager, apiService: ApiService, context
                         Text(
                             text = "Vehículos disponibles",
                             style = MaterialTheme.typography.titleMedium,
-                            modifier = Modifier.padding(vertical = 8.dp)
-                        )
+
+                            )
                     }
                     items(vehiclesAvailable) { vehicle ->
                         VehicleCard(
@@ -330,14 +331,18 @@ fun VehicleCard(
     if (vehicle != null) {
         Card(
             modifier = Modifier
-
-                .padding(8.dp),
+                .border(
+                    1.dp,
+                    colorResource(id = R.color.black),
+                    shape = RoundedCornerShape(8.dp)
+                ),
+            colors = CardDefaults.cardColors(containerColor = Color.White), // Fondo blanco
             elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
         ) {
 
             ConstraintLayout(
                 modifier = Modifier
-                    .padding(5.dp)
+                    .padding(10.dp)
             ) {
 
                 val (title, subTitle, infoVehicule) = createRefs()
@@ -354,7 +359,7 @@ fun VehicleCard(
                 ) {
 
                     Text(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier,
                         text = "${vehicle.marca} ${vehicle.modeloVehiculo}",
                         style = MaterialTheme.typography.titleLarge,
                         maxLines = 1,
@@ -370,57 +375,49 @@ fun VehicleCard(
                             top.linkTo(title.bottom)
                             end.linkTo(parent.end)
                             start.linkTo(parent.start)
-
-                        }
-
+                        },
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    verticalAlignment = Alignment.CenterVertically
                 ) {
-
-                    if (vehicle.idClaseVehiculo == "67a50fff122183dc3aaddbae") {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_moto),
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp), // Tamaño del icono
-
-                        )
+                    // Icono según el tipo de vehículo
+                    val iconRes = if (vehicle.idClaseVehiculo == "67a50fff122183dc3aaddbae") {
+                        R.drawable.ic_moto
                     } else {
-                        Icon(
-                            painter = painterResource(id = R.drawable.ic_garage),
-                            contentDescription = null,
-                            modifier = Modifier.size(20.dp), // Tamaño del icono
+                        R.drawable.ic_garage
+                    }
 
+                    Icon(
+                        painter = painterResource(id = iconRes),
+                        contentDescription = null,
+                        modifier = Modifier.size(20.dp)
+                    )
+
+
+                    Box(
+                        modifier = Modifier
+                            .background(Color(0xFFFFEB3B), shape = RoundedCornerShape(8.dp)) // Amarillo suave con bordes redondeados
+                            .border(1.dp, colorResource(id = R.color.black), shape = RoundedCornerShape(8.dp))
+                            .padding(horizontal = 8.dp, vertical = 2.dp)
+                    ) {
+                        Text(
+                            text = vehicle.placa,
+                            style = MaterialTheme.typography.titleSmall,
+                            color = Color.Black,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis
                         )
                     }
 
-
+                    // Tipo de vehículo
                     Text(
-                        text = " ${vehicle.placa}",
-                        style = MaterialTheme.typography.titleSmall,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-
-
-                    )
-
-                    Text(
-                        modifier = Modifier
-
-                            .padding(start = 3.dp),
-                        text = " ${vehicle.idTipoVehiculo.nombreTipo}",
-                        style = MaterialTheme.typography.titleSmall,
-                        maxLines = 1,
-                        overflow = TextOverflow.Ellipsis
-                    )
-
-                    Text(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(start = 3.dp),
-                        text = " ${vehicle.fechaMatricula}",
+                        modifier = Modifier.padding(start = 3.dp),
+                        text = vehicle.idTipoVehiculo.nombreTipo,
                         style = MaterialTheme.typography.titleSmall,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                 }
+
 
 
             }

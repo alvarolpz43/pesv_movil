@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -30,6 +31,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
@@ -224,27 +226,32 @@ fun NotifyPreoperacional(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp), // Agrega padding general
+                    .padding(16.dp)
+                    .wrapContentSize(Alignment.Center), // Centra sin ocupar toda la pantalla
                 contentAlignment = Alignment.Center
             ) {
                 Column(
+                    modifier = Modifier.fillMaxWidth(0.9f), // Ajusta el ancho en pantallas grandes
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
                     CheckIcon() // Ícono de verificación
 
-                    Spacer(modifier = Modifier.height(16.dp)) // Espacio entre el ícono y el texto
+                    Spacer(modifier = Modifier.height(16.dp)) // Espacio entre ícono y texto
 
                     Text(
                         text = "Estás al día",
                         fontSize = 20.sp,
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center,
-                        color = Color.Black, // Ajusta el color según el tema
-                        modifier = Modifier.padding(horizontal = 16.dp)
+                        color = Color.Black,
+                        modifier = Modifier
+                            .fillMaxWidth(0.8f) // Evita que el texto se expanda demasiado en pantallas grandes
+                            .padding(horizontal = 16.dp)
                     )
                 }
             }
+
 
 
         } else {
@@ -252,28 +259,32 @@ fun NotifyPreoperacional(
             Box(
                 modifier = Modifier
                     .fillMaxSize()
-                    .padding(16.dp), // Agrega padding general
+                    .padding(16.dp), // Padding general
                 contentAlignment = Alignment.Center
             ) {
                 Column(
+                    modifier = Modifier.fillMaxWidth(), // Usa todo el ancho disponible
                     horizontalAlignment = Alignment.CenterHorizontally,
                     verticalArrangement = Arrangement.Center
                 ) {
-                    ClockIcon() //
+                    ClockIcon() // Ícono del reloj
 
-                    Spacer(modifier = Modifier.height(16.dp)) // Espacio entre el ícono y el texto
+                    Spacer(modifier = Modifier.height(16.dp)) // Espacio entre ícono y texto
 
                     Text(
                         text = "Completa tu preoperacional",
-                        fontSize = 20.sp,
+                        fontSize = 18.sp, // Reducido para evitar desbordes
                         fontWeight = FontWeight.Bold,
                         textAlign = TextAlign.Center,
-                        color = Color.Black, // Ajusta el color según el tema
-                        modifier = Modifier.padding(horizontal = 16.dp)
+                        color = Color.Black,
+                        modifier = Modifier
+                            .padding(horizontal = 16.dp) // Asegura espacio lateral
+                            .fillMaxWidth(), // Permite que el texto use el ancho necesario
+                        style = TextStyle(lineHeight = 22.sp) // Espaciado adecuado entre líneas
                     )
                 }
-
             }
+
 
 
         }
