@@ -3,6 +3,7 @@ package com.example.pesv_movil.home
 import android.content.Context
 import android.util.Log
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -31,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.colorResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
@@ -41,6 +44,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.pesv_movil.PesvScreens
+import com.example.pesv_movil.R
 import com.example.pesv_movil.core.network.RetrofitHelper
 import com.example.pesv_movil.data.ApiService
 import com.example.pesv_movil.desplazamientos.DesplazamientosIcon
@@ -77,15 +81,16 @@ fun HomeScreen(
 //            val topGuide = createGuidelineFromTop(0.1f)
 
 
-            GreenLogo(modifier = Modifier
-                .size(150.dp)
-                .constrainAs(logo)
-                {
-                    top.linkTo(parent.top)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
+            GreenLogo(
+                modifier = Modifier
+                    .size(150.dp)
+                    .constrainAs(logo)
+                    {
+                        top.linkTo(parent.top)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
 
-                })
+                    })
 
             Card(
                 modifier = Modifier
@@ -253,7 +258,6 @@ fun NotifyPreoperacional(
             }
 
 
-
         } else {
 
             Box(
@@ -286,7 +290,6 @@ fun NotifyPreoperacional(
             }
 
 
-
         }
     }
 
@@ -316,15 +319,16 @@ fun HomeScreenPreviewOnlyUI() {
 
 
 
-            GreenLogo(modifier = Modifier
-                .size(150.dp)
-                .constrainAs(logo)
-                {
-                    top.linkTo(parent.top)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
+            GreenLogo(
+                modifier = Modifier
+                    .size(150.dp)
+                    .constrainAs(logo)
+                    {
+                        top.linkTo(parent.top)
+                        start.linkTo(parent.start)
+                        end.linkTo(parent.end)
 
-                })
+                    })
 
 
 
@@ -333,12 +337,19 @@ fun HomeScreenPreviewOnlyUI() {
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 8.dp)
                     .height(120.dp)
+                    .border(
+                        1.dp,
+                        colorResource(id = R.color.black),
+                        shape = RoundedCornerShape(8.dp)
+                    )
                     .constrainAs(buttonPreoperacional) {
                         top.linkTo(logo.bottom)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                     }
                     .clickable { println("Preoperacional clicado") },
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+
                 elevation = CardDefaults.cardElevation(defaultElevation = 16.dp)
             ) {
                 Row(
@@ -366,13 +377,14 @@ fun HomeScreenPreviewOnlyUI() {
                     .fillMaxWidth()
                     .padding(horizontal = 16.dp, vertical = 16.dp)
                     .height(120.dp)
+
                     .constrainAs(buttonDesplazamientos) {
                         top.linkTo(buttonPreoperacional.bottom)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
-                    }
-                    .clickable { println("Desplazamientos clicado") },
-                elevation = CardDefaults.cardElevation(defaultElevation = 16.dp)
+                    },
+                colors = CardDefaults.cardColors(containerColor = Color.White),
+                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
             ) {
                 Row(
                     modifier = Modifier
