@@ -66,7 +66,6 @@ fun FormPreoperacionalScreen(
 ) {
     val keyboardController = LocalSoftwareKeyboardController.current
     val apiService: ApiService = RetrofitHelper.getRetrofit().create(ApiService::class.java)
-
     val respuestasState = remember { mutableStateOf<List<RespuestaForm>>(emptyList()) }
     var idForm = remember { mutableStateOf("") }
     val context = LocalContext.current

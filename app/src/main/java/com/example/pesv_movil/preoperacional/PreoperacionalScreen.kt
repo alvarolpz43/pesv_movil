@@ -72,7 +72,6 @@ fun PreoperacionalScreen(
     val apiService: ApiService = RetrofitHelper.getRetrofit().create(ApiService::class.java)
 
 
-
     Scaffold(
         topBar = {
             androidx.compose.material3.TopAppBar(

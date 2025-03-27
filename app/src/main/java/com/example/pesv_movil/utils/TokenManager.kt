@@ -23,6 +23,7 @@ class TokenManager @Inject constructor(private val context: Context) {
         private val TOKEN_KEY = stringPreferencesKey("auth_token")
     }
 
+
     val token: Flow<String?> = context.dataStore.data
         .map { preferences -> preferences[TOKEN_KEY] }
 
@@ -31,6 +32,7 @@ class TokenManager @Inject constructor(private val context: Context) {
             preferences[TOKEN_KEY] = token
         }
     }
+
 
     suspend fun clearToken() {
         context.dataStore.edit { preferences ->
