@@ -71,7 +71,7 @@ fun FormPreoperacionalScreen(
     var idForm = remember { mutableStateOf("") }
     val context = LocalContext.current
 
-    Scaffold(
+        Scaffold(
         topBar = {
             TopAppBar(
                 title = { Text("Formulario Preoperacional") },

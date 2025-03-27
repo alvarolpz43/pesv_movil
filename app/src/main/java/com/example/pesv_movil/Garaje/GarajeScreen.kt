@@ -74,7 +74,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.navigation.NavHostController
 import com.example.pesv_movil.Garaje.data.InfoVehicle
 import com.example.pesv_movil.Garaje.data.MyResponseVehiculo
-import com.example.pesv_movil.Garaje.data.TipoVehiculo
+import com.example.pesv_movil.Garaje.data.ActividadVehiculo
 import com.example.pesv_movil.Garaje.data.UserInfo
 import com.example.pesv_movil.Garaje.data.Zona
 import com.example.pesv_movil.PesvScreens
@@ -411,7 +411,7 @@ fun VehicleCard(
                     // Tipo de vehículo
                     Text(
                         modifier = Modifier.padding(start = 3.dp),
-                        text = vehicle.idTipoVehiculo.nombreTipo,
+                        text = vehicle.idActividadVehiculo.nombreTipo,
                         style = MaterialTheme.typography.titleSmall,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
@@ -894,7 +894,7 @@ fun VehicleCardPreview() {
             UserInfo("user", "user"),
             UserInfo("user", "user"),
             "sfgsggdffg",
-            TipoVehiculo("sdfsdfd", "fsdfd", "El Vehiculo"),
+            ActividadVehiculo("sdfsdfd", "fsdfd", "El Vehiculo"),
             Zona("zona", "Norte", "1"),
             "marca",
             "service",

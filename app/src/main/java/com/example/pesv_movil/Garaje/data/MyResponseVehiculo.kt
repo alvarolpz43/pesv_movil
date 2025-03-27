@@ -10,7 +10,7 @@ data class InfoVehicle(
     val idUsuario: UserInfo,
     val idUsuarioAsignado: UserInfo?,
     val idClaseVehiculo: String,
-    val idTipoVehiculo: TipoVehiculo,
+    val idActividadVehiculo: ActividadVehiculo,
     val idZona: Zona,
     val marca: String,
     val servicio: String,
@@ -32,7 +32,7 @@ data class UserInfo(
     val name: String,
 )
 
-data class TipoVehiculo(
+data class ActividadVehiculo(
     val _id: String,
     val nombreTipo: String,
     val description: String

@@ -192,7 +192,7 @@ fun FormVehicleScreen(navController: NavController, onClose: () -> Unit) {
                                     capacidadVehiculo = capacidadSeleccionada.value!!,
                                     fechaMatricula = matriculaSeleccionada.value,
                                     servicio = servicioSeleccionadoId ?: "",
-                                    idTipoVehiculo = tipoSeleccionadoId ?: "",
+                                    idActividadVehiculo = tipoSeleccionadoId ?: "",
                                     idClaseVehiculo = claseSeleccionadaId ?: "",
                                     idZona = zonaSeleccionadaId ?: ""
                                 ),
@@ -245,7 +245,7 @@ suspend fun submitDeliveryForm(
     val capacidad = vehicleRequest.capacidadVehiculo
     val fechaMatricula = vehicleRequest.fechaMatricula
     val servicio = vehicleRequest.servicio
-    val tipo = vehicleRequest.idTipoVehiculo
+    val tipo = vehicleRequest.idActividadVehiculo
     val clase = vehicleRequest.idClaseVehiculo
     val zona = vehicleRequest.idZona
 
@@ -274,7 +274,7 @@ suspend fun submitDeliveryForm(
             capacidadVehiculo = capacidad,
             fechaMatricula = fechaMatricula,
             servicio = servicio,
-            idTipoVehiculo = tipo,
+            idActividadVehiculo = tipo,
             idClaseVehiculo = clase,
             idZona = zona
         )
@@ -570,7 +570,7 @@ fun SelectServicio(
             value = selectedOption?.name ?: "",
             onValueChange = { selectedOption?._id },
             readOnly = true,
-            label = { Text("Selecciona el Tipo de Document") },
+            label = { Text("Selecciona la Actividad") },
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             },
@@ -729,7 +729,7 @@ fun SelectTipoVehiculo(
             value = selectedOption?.nombreTipo ?: "",
             onValueChange = { selectedOption?._id },
             readOnly = true,
-            label = { Text("Selecciona el Tipo") },
+            label = { Text("Selecciona la Actividad") },
             trailingIcon = {
                 ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
             },

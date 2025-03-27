@@ -2,7 +2,7 @@ package com.example.pesv_movil.Garaje.data
 
 data class VehiculeRequest(
     val idClaseVehiculo: String,
-    val idTipoVehiculo: String,
+    val idActividadVehiculo: String,
     val idZona: String,
     val marca: String,
     val servicio: String,
