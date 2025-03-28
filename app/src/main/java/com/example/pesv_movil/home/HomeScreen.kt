@@ -102,6 +102,9 @@ fun HomeScreen(
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                     }
+                    .clickable { navController.navigate(PesvScreens.EJEMPLO_SCREEN) }
+
+
             ) {
                 NotifyPreoperacional(
                     tokenManager = tokenManager,

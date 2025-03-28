@@ -33,6 +33,8 @@ import com.example.pesv_movil.login.ui.LoginViewModel
 import com.example.pesv_movil.navigationApp.PesvNavigationActions
 import com.example.pesv_movil.preoperacional.FormPreoperacionalScreen
 import com.example.pesv_movil.preoperacional.PreoperacionalScreen
+import com.example.pesv_movil.preoperacional.PreoperacionalScreen2
+import com.example.pesv_movil.preoperacional.PreoperacionalViewModel
 import com.example.pesv_movil.utils.AppModalDrawer
 import com.example.pesv_movil.utils.TokenManager
 import kotlinx.coroutines.CoroutineScope
@@ -154,6 +156,12 @@ fun PesvNavGraph(
             FormVehicleScreen(
                 navController = navController,
                 onClose = { navController.popBackStack() })
+        }
+
+        composable(PesvScreens.EJEMPLO_SCREEN) {
+            PreoperacionalScreen2(
+                preoperacionalViewModel = PreoperacionalViewModel(tokenManager = tokenManager, navController = navController)
+            )
         }
     }
 }

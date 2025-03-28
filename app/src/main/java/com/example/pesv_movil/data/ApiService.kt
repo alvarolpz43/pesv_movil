@@ -53,6 +53,12 @@ interface ApiService {
         @Header("Authorization") token: String
     ): Call<MyResponseTipoDctoVehicle>
 
+
+    @GET("pesv/vehiculos/vehiculos-sin-preoperacional") //Fun duplicada para pruebas
+    suspend fun getVehicleSinPreoperacional(
+        @Header("Authorization") token: String
+    ):Response<ResponseVehicleSinPre>
+
     @GET("pesv/vehiculos/vehiculos-sin-preoperacional")
     fun getVehicleSinPre(
         @Header("Authorization") token: String
