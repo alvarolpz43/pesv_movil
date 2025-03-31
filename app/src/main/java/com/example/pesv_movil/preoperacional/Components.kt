@@ -17,15 +17,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import com.example.pesv_movil.R
 
-@Composable
-fun VehiculeIcon(modifier: Modifier = Modifier.size(50.dp)) {
-    Image(
-        painter = painterResource(id = R.drawable.ic_vehicule),
-        contentDescription = "Ícono de Desplazamientos",
-        contentScale = ContentScale.Fit, // Ajusta sin deformar
-        modifier = modifier
-    )
-}
 
 @Composable
 fun RoundedNotify(modifier: Modifier = Modifier.size(50.dp)) {
