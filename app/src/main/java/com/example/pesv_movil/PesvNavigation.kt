@@ -11,6 +11,6 @@ object PesvScreens {
     const val PREOPE_SCREEN = "preoperacional"
     const val FORM_PREOPE_SCREEN = "form_preoperacional/{vehicleId}"
     const val NOTIFICACIONES_SCREEN = "notificaciones"
-    const val EJEMPLO_SCREEN = "ejemplo"
+
 
 }

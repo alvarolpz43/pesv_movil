@@ -23,18 +23,17 @@ import androidx.navigation.navArgument
 import com.example.pesv_movil.Garaje.FormVehicleScreen
 import com.example.pesv_movil.Garaje.GarajeScreen
 import com.example.pesv_movil.Notificaciones.NotificacionesScreen
-
-import com.example.pesv_movil.desplazamientos.MapaScreen
 import com.example.pesv_movil.desplazamientos.DesplazamientosViewModel
+import com.example.pesv_movil.desplazamientos.MapaScreen
 import com.example.pesv_movil.home.HomeScreen
 import com.example.pesv_movil.login.domain.LoginUseCase
 import com.example.pesv_movil.login.ui.LoginScreen
 import com.example.pesv_movil.login.ui.LoginViewModel
 import com.example.pesv_movil.navigationApp.PesvNavigationActions
-import com.example.pesv_movil.preoperacional.FormPreoperacionalScreen
-import com.example.pesv_movil.preoperacional.PreoperacionalScreen
-import com.example.pesv_movil.preoperacional.PreoperacionalScreen2
-import com.example.pesv_movil.preoperacional.PreoperacionalViewModel
+import com.example.pesv_movil.preoperacional.Form.FormPreoperacionalScreen
+import com.example.pesv_movil.preoperacional.Form.FormPreoperacionalViewModel
+import com.example.pesv_movil.preoperacional.ListaVehiculos.PreoperacionalScreen
+import com.example.pesv_movil.preoperacional.ListaVehiculos.PreoperacionalViewModel
 import com.example.pesv_movil.utils.AppModalDrawer
 import com.example.pesv_movil.utils.TokenManager
 import kotlinx.coroutines.CoroutineScope
@@ -61,12 +60,14 @@ fun PesvNavGraph(
     val currentRoute = currentNavBackStackEntry?.destination?.route ?: startDestination
 
     NavHost(
-        navController = navController,
-        startDestination = startDestination,
-        modifier = modifier
+        navController = navController, startDestination = startDestination, modifier = modifier
     ) {
         composable(PesvScreens.LOGIN_SCREEN) {
-            LoginScreen(navController = navController, loginViewModel = loginViewModel, tokenManager = tokenManager)
+            LoginScreen(
+                navController = navController,
+                loginViewModel = loginViewModel,
+                tokenManager = tokenManager
+            )
         }
 
         composable(PesvScreens.DESPLAZAMIENTOS_SCREEN) {
@@ -87,31 +88,13 @@ fun PesvNavGraph(
             val desplazamientosViewModel: DesplazamientosViewModel =
                 hiltViewModel() // ✅ Obtén ViewModel correctamente
             BuscarUbicacionScreen(
-                navController = navController,
-                desplazamientosViewModel = desplazamientosViewModel
+                navController = navController, desplazamientosViewModel = desplazamientosViewModel
             )
         }
 
-        composable(PesvScreens.PREOPE_SCREEN) {
-            PreoperacionalScreen(
-                navController = navController,
-                onClose = { navController.popBackStack() },
-                tokenManager = tokenManager
-            )
-        }
 
-        composable(
-            route = PesvScreens.FORM_PREOPE_SCREEN,
-            arguments = listOf(navArgument("vehicleId") { type = NavType.StringType })
-        ) { backStackEntry ->
-            val vehicleId = backStackEntry.arguments?.getString("vehicleId") ?: ""
-            FormPreoperacionalScreen(
-                navController = navController,
-                onClose = { navController.popBackStack() },
-                tokenManager = tokenManager,
-                vehicleId = vehicleId
-            )
-        }
+
+
 
 
 
@@ -121,11 +104,9 @@ fun PesvNavGraph(
             AppModalDrawer(
                 drawerState, currentRoute, navActions
             ) {
-                HomeScreen(
-                    navController = navController,
+                HomeScreen(navController = navController,
                     tokenManager = tokenManager,
-                    openDrawer = { coroutineScope.launch { drawerState.open() } }
-                )
+                    openDrawer = { coroutineScope.launch { drawerState.open() } })
             }
         }
 
@@ -144,25 +125,50 @@ fun PesvNavGraph(
             AppModalDrawer(
                 drawerState, currentRoute, navActions
             ) {
-                NotificacionesScreen(
-                    navController = navController,
+                NotificacionesScreen(navController = navController,
                     tokenManager = tokenManager,
-                    openDrawer = { coroutineScope.launch { drawerState.open() } }
-                )
+                    openDrawer = { coroutineScope.launch { drawerState.open() } })
             }
         }
 
         composable(PesvScreens.FORM_VEHICLE_SCREEN) {
-            FormVehicleScreen(
-                navController = navController,
+            FormVehicleScreen(navController = navController,
                 onClose = { navController.popBackStack() })
         }
 
-        composable(PesvScreens.EJEMPLO_SCREEN) {
-            PreoperacionalScreen2(
-                preoperacionalViewModel = PreoperacionalViewModel(tokenManager = tokenManager, navController = navController)
-            )
+        composable(PesvScreens.PREOPE_SCREEN) {
+            PreoperacionalScreen(
+
+                preoperacionalViewModel = PreoperacionalViewModel(
+                    tokenManager = tokenManager
+                ),
+                navController = navController,
+
+                )
         }
+
+        composable(
+            route = PesvScreens.FORM_PREOPE_SCREEN,
+            arguments = listOf(navArgument("vehicleId") { type = NavType.StringType })
+        ) { backStackEntry ->
+            val vehicleId = backStackEntry.arguments?.getString("vehicleId") ?: ""
+            FormPreoperacionalScreen(
+                navController = navController,
+
+                viewModel = FormPreoperacionalViewModel(
+                    tokenManager = tokenManager,
+                    vehicleId
+
+
+
+                ),
+
+
+
+                )
+        }
+
+
     }
 }
 

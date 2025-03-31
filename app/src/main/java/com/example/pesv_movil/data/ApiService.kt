@@ -57,18 +57,14 @@ interface ApiService {
     @GET("pesv/vehiculos/vehiculos-sin-preoperacional") //Fun duplicada para pruebas
     suspend fun getVehicleSinPreoperacional(
         @Header("Authorization") token: String
-    ):Response<ResponseVehicleSinPre>
+    ): Response<ResponseVehicleSinPre>
 
-    @GET("pesv/vehiculos/vehiculos-sin-preoperacional")
-    fun getVehicleSinPre(
-        @Header("Authorization") token: String
-    ): Call<ResponseVehicleSinPre>
 
     @GET("pesv/formularios/vehiculo/{idVehiculo}")
-    fun getFormById(
+    suspend fun getFormById(
         @Header("Authorization") token: String,
         @Path("idVehiculo") idVehiculo: String
-    ): Call<ResponseFormById>
+    ): Response<ResponseFormById>
 
 
     @GET("pesv/notificaciones/user")

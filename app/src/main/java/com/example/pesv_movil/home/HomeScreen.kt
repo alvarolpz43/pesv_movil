@@ -102,7 +102,7 @@ fun HomeScreen(
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                     }
-                    .clickable { navController.navigate(PesvScreens.EJEMPLO_SCREEN) }
+
 
 
             ) {
@@ -203,8 +203,7 @@ fun NotifyPreoperacional(
                 val userId = tokenManager.getUserIdBlocking() ?: ""
                 Log.d("FetchMyVehiculosId", "ID del usuario: $userId")
 
-                val call = apiService.getVehicleSinPre("Bearer $tokenValue")
-                val response = call.execute()
+                val response = apiService.getVehicleSinPreoperacional("Bearer $tokenValue")
                 if (response.isSuccessful) {
                     value = response.body()
                     Log.d("FetchMyVehiculos", "Respuesta exitosa: ${response.body()}")
