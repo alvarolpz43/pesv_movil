@@ -18,6 +18,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -29,13 +32,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,22 +47,21 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.example.pesv_movil.R
 import com.example.pesv_movil.preoperacional.data.DataVehicleSinPre
-import kotlinx.coroutines.launch
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PreoperacionalScreen(
-    preoperacionalViewModel: PreoperacionalViewModel,
+    preoperacionalViewModel: PreoperacionalViewModel = hiltViewModel(),
     navController: NavHostController
 ) {
 
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
-
-    val data = remember { mutableStateOf<String?>(null) }
 
     val vehicles by preoperacionalViewModel.vehicles.collectAsState()
     val isLoading by preoperacionalViewModel.isLoading.collectAsState()
@@ -80,11 +78,23 @@ fun PreoperacionalScreen(
     fun goToForm(id_vehiculo: String) {
         Log.i("id_vehicle", id_vehiculo)
         navController.navigate("form_preoperacional/${id_vehiculo}")
-
     }
 
+    val showDialog by preoperacionalViewModel.showDialog.collectAsState()
 
+    if (showDialog) {
+        AlertDialogFormPreviewable(
+            onDismiss = { preoperacionalViewModel.onDismissDialog() },
+            onConfirm = {
+                preoperacionalViewModel.onPerformPreoperacional()
+                navController.navigate("form_preoperacional/${preoperacionalViewModel.selectedVehicleId}")
+            },
+            onDismissButton = {
+                // Acción para enviar vacío si aplica
+            }
+        )
 
+    }
 
 
     //Es el header
@@ -119,10 +129,11 @@ fun PreoperacionalScreen(
                 .padding(paddingValues),
             contentAlignment = Alignment.Center
         ) {
+
             if (isLoading) {
                 CircularProgressIndicator()
             } else {
-                if (vehicles.isEmpty()) {
+                if (!isLoading && vehicles.isEmpty()) {
                     Text(
                         text = "Estás al día, no hay vehículos pendientes.",
                         modifier = Modifier
@@ -138,7 +149,10 @@ fun PreoperacionalScreen(
                             .padding(16.dp)
                     ) {
                         items(vehicles) { vehicle ->
-                            VehicleCard(vehicle, onClick = { goToForm(vehicle._id) })
+                            VehicleCard(
+                                vehicle,
+                                onClick = { preoperacionalViewModel.onVehicleSelected(vehicle._id) }
+                            )
                         }
                     }
                 }
@@ -298,6 +312,74 @@ fun VehicleCard(vehicle: DataVehicleSinPre, onClick: () -> Unit) {
 
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AlertDialogFormPreview() {
+    AlertDialogFormPreviewable(
+        onDismiss = {},
+        onConfirm = {},
+        onDismissButton = {}
+    )
+}
+
+
+
+@Composable
+fun AlertDialogFormPreviewable(
+    onDismiss: () -> Unit,
+    onConfirm: () -> Unit,
+    onDismissButton: () -> Unit
+) {
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = {
+            Text(
+                text = "Acción Preoperacional",
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        text = {
+            Text(
+                text = "Seleccione una opción para este vehículo:",
+                textAlign = TextAlign.Center,
+                modifier = Modifier.fillMaxWidth()
+            )
+        },
+        confirmButton = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally,
+                verticalArrangement = Arrangement.Center
+            ) {
+                Button(
+                    onClick = onConfirm,
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
+                ) {
+                    Text("Realizar Preoperacional", color = Color.White)
+                }
+            }
+        },
+        dismissButton = {
+            Column(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                Button(
+                    onClick = onDismissButton,
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
+                ) {
+                    Text("Marcar como No aplica", color = Color.White)
+                }
+            }
+        }
+    )
 }
 
 

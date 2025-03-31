@@ -27,8 +27,7 @@ import kotlinx.coroutines.withContext
 class FormPreoperacionalViewModel(
     private val tokenManager: TokenManager,
     private val vehicleId: String
-) : ViewModel() {
-
+)  : ViewModel()  {
 
     private val apiService: ApiService = RetrofitHelper.getRetrofit().create(ApiService::class.java)
 
@@ -39,9 +38,7 @@ class FormPreoperacionalViewModel(
     val isLoading: StateFlow<Boolean> = _isLoading
 
     // Almacena las respuestas (preguntaId -> respuesta)
-
     val respuestas = mutableStateMapOf<String, Boolean>()
-
 
     init {
         viewModelScope.launch {

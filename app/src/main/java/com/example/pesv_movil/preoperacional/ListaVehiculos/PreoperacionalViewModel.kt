@@ -26,29 +26,74 @@ class PreoperacionalViewModel(
     private val _isLoading = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading
 
+    // Estados para controlar el diálogo
+    private val _showDialog = MutableStateFlow(false)
+    val showDialog: StateFlow<Boolean> = _showDialog
+
+    var selectedVehicleId: String? = null
+
     init {
         fetchVehicles()
     }
 
+    private var hasLoaded = false
+
     private fun fetchVehicles() {
+        if (hasLoaded) return
         viewModelScope.launch(Dispatchers.IO) {
-            _isLoading.value = true
             try {
+                _isLoading.value = true
                 val userToken = tokenManager.token.first() ?: ""
                 val response = apiService.getVehicleSinPreoperacional("Bearer $userToken")
                 if (response.isSuccessful && response.body()!!.success) {
+                    Log.i("datavehiculos", response.body().toString())
                     response.body()?.data?.let { dataList ->
                         _vehicles.value = dataList
-                        Log.i("Vehiculos", dataList.toString())
+                        hasLoaded = true
                     }
-                } else {
-                    Log.e("Error", "Error en la respuesta: ${response.errorBody()?.string()}")
                 }
-            } catch (e: Exception) {
-                Log.e("Error", "Ocurrió un error: ${e.message}")
             } finally {
                 _isLoading.value = false
             }
         }
     }
+
+    // Nuevas funciones para manejar el diálogo y acciones
+    fun onVehicleSelected(vehicleId: String) {
+        selectedVehicleId = vehicleId
+        _showDialog.value = true
+    }
+
+    fun onDismissDialog() {
+        _showDialog.value = false
+    }
+
+    fun onPerformPreoperacional() {
+        _showDialog.value = false
+        selectedVehicleId?.let { /* Aquí manejas la navegación al formulario */ }
+    }
+
+//    fun onSendEmptyPreoperacional() {
+////        viewModelScope.launch(Dispatchers.IO) {
+////            try {
+////                selectedVehicleId?.let { vehicleId ->
+////                    val userToken = tokenManager.token.first() ?: ""
+////                    val response = apiService.sendEmptyPreoperacional(
+////                        "Bearer $userToken",
+////                        vehicleId
+////                    )
+////                    if (response.isSuccessful) {
+////                        Log.i("Preoperacional", "Preoperacional vacío enviado para $vehicleId")
+////                        // Recargar la lista
+////                        hasLoaded = false
+////                        fetchVehicles()
+////                    }
+////                }
+////            } catch (e: Exception) {
+////                Log.e("Preoperacional", "Error al enviar preoperacional vacío", e)
+////            } finally {
+////                _showDialog.value = false
+////            }
+////        }
+////    }
 }
