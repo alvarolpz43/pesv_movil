@@ -24,6 +24,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
+import androidx.compose.material3.CheckboxDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -74,18 +75,10 @@ fun FormPreoperacionalScreen(
     val sendSuccess by viewModel.sendSuccess.collectAsState()
 
 
-
-
-
-
-
-
-
     // Verificar si todas las preguntas están respondidas
     LaunchedEffect(viewModel.respuestas) {
         todasRespondidas = viewModel.respuestas.values.all { it != null }
     }
-
 
 
     // Observar si el formulario se envió correctamente
@@ -131,6 +124,7 @@ fun FormPreoperacionalScreen(
                 isLoading -> {
                     CircularProgressIndicator()
                 }
+
                 formulario != null && totalPreguntas > 0 -> {
                     Column(
                         modifier = Modifier
@@ -153,11 +147,14 @@ fun FormPreoperacionalScreen(
                                 modifier = Modifier
                                     .weight(1f)
                                     .padding(start = 8.dp),
-                                color = MaterialTheme.colorScheme.primary
+                                color = Color.Black
                             )
                         }
 
                         Spacer(modifier = Modifier.height(24.dp))
+                        val preguntasMostradas = formulario?.preguntas
+                            ?.drop(preguntaActual)
+                            ?.take(2) // Tomamos las dos siguientes preguntas
 
                         // Pregunta actual
                         Column(
@@ -167,7 +164,9 @@ fun FormPreoperacionalScreen(
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
-                            formulario?.preguntas?.get(preguntaActual)?.let { pregunta ->
+
+
+                            preguntasMostradas?.forEach { pregunta ->
                                 PreguntaItem(
                                     pregunta = pregunta,
                                     respuestaActual = viewModel.respuestas[pregunta._id],
@@ -176,6 +175,7 @@ fun FormPreoperacionalScreen(
                                     }
                                 )
                             }
+
                         }
 
                         Spacer(modifier = Modifier.height(16.dp))
@@ -190,7 +190,7 @@ fun FormPreoperacionalScreen(
                             // Botón "Atrás"
                             if (preguntaActual > 0) {
                                 Button(
-                                    onClick = { preguntaActual-- },
+                                    onClick = { preguntaActual -= 2 }, // Retrocede de dos en dos
                                     colors = ButtonDefaults.buttonColors(
                                         containerColor = MaterialTheme.colorScheme.secondary
                                     )
@@ -201,11 +201,13 @@ fun FormPreoperacionalScreen(
                                 Spacer(modifier = Modifier.weight(1f))
                             }
 
+
                             // Botón "Siguiente" o "Enviar"
-                            if (preguntaActual < totalPreguntas - 1) {
+                            if (preguntaActual < totalPreguntas - 2) {
                                 Button(
-                                    onClick = { preguntaActual++ },
-                                    enabled = viewModel.respuestas[formulario!!.preguntas[preguntaActual]._id] != null
+                                    onClick = { preguntaActual += 2 }, // Avanza de dos en dos
+                                    enabled = preguntasMostradas?.all { viewModel.respuestas[it._id] != null } == true,
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
                                 ) {
                                     Text("Siguiente")
                                 }
@@ -213,17 +215,18 @@ fun FormPreoperacionalScreen(
                                 Button(
                                     onClick = {
                                         viewModel.enviarRespuestas(context)
-
                                     },
                                     enabled = todasRespondidas,
-                                    colors = ButtonDefaults.buttonColors(containerColor = Color.Green)
+                                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black)
                                 ) {
                                     Text("Enviar formulario")
                                 }
                             }
+
                         }
                     }
                 }
+
                 else -> {
                     Text(
                         text = "No hay formularios pendientes por completar.",
@@ -237,6 +240,21 @@ fun FormPreoperacionalScreen(
     }
 }
 
+
+@Preview(showBackground = true)
+@Composable
+fun PreguntaItemPreview() {
+    PreguntaItem(
+        pregunta = DataPregunta(
+            _id = "1",
+            preguntaTexto = "Frenos Responden correctamente en el hambito de la carretera o de el srevicion nacoanl del sena",
+            determinancia = true
+        ),
+        respuestaActual = true,
+        onRespuestaSeleccionada = {}
+    )
+}
+
 @Composable
 fun PreguntaItem(
     pregunta: DataPregunta,
@@ -246,6 +264,8 @@ fun PreguntaItem(
     Column(
         modifier = Modifier
             .fillMaxWidth()
+            .padding(16.dp)
+            .border(2.dp, Color.Gray, RoundedCornerShape(12.dp)) // Borde alrededor de la pregunta
             .padding(16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -254,7 +274,7 @@ fun PreguntaItem(
             text = pregunta.preguntaTexto,
             fontWeight = FontWeight.Bold,
             textAlign = TextAlign.Center,
-            fontSize = 20.sp,
+            fontSize = 15.sp,
             modifier = Modifier.padding(bottom = 32.dp),
             color = MaterialTheme.colorScheme.onSurface
         )
@@ -280,12 +300,18 @@ fun PreguntaItem(
                             onRespuestaSeleccionada(false)
                         }
                     },
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    modifier = Modifier.padding(bottom = 8.dp),
+                    colors = CheckboxDefaults.colors(
+                        checkedColor = Color.Black,   // Color cuando está marcado
+                        uncheckedColor = Color.Black,   // Color cuando está desmarcado
+                        checkmarkColor = Color.White  // Color del check interno
+                    )
                 )
                 Text(
                     text = "En buen estado",
-                    color = Color.Green,
-                    fontWeight = FontWeight.SemiBold
+                    color = Color.Black,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 12.sp
                 )
             }
 
@@ -304,12 +330,18 @@ fun PreguntaItem(
                             onRespuestaSeleccionada(true)
                         }
                     },
-                    modifier = Modifier.padding(bottom = 8.dp)
+                    modifier = Modifier.padding(bottom = 8.dp),
+                    colors = CheckboxDefaults.colors(
+                        checkedColor = Color.Red,   // Color cuando está marcado
+                        uncheckedColor = Color.Red,   // Color cuando está desmarcado
+                        checkmarkColor = Color.White  // Color del check interno
+                    )
                 )
                 Text(
                     text = "En mal estado",
-                    color = Color.Red,
-                    fontWeight = FontWeight.SemiBold
+                    color = Color.Black,
+                    fontWeight = FontWeight.Medium,
+                    fontSize = 12.sp
                 )
             }
         }
@@ -317,8 +349,6 @@ fun PreguntaItem(
 
 
 }
-
-
 
 
 @Composable
@@ -396,7 +426,6 @@ fun SuccessModal(showDialog: Boolean, onDismiss: () -> Unit) {
 }
 
 
-@Preview(showBackground = true)
 @Composable
 fun SuccessModalPreview() {
     SuccessModal(
