@@ -262,7 +262,6 @@ fun CardVehicleUsing(
                     )
                 }
 
-
                 Row(
                     modifier = Modifier
                         .padding(3.dp)
