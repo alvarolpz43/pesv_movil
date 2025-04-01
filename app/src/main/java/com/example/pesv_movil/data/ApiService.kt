@@ -7,6 +7,7 @@ import com.example.pesv_movil.Notificaciones.data.MyResponseNotifications
 import com.example.pesv_movil.components.MyResponseSelects
 import com.example.pesv_movil.components.MyResponseTipoDctoVehicle
 import com.example.pesv_movil.preoperacional.data.RequestBodyForm
+import com.example.pesv_movil.preoperacional.data.RequestBodyFormNoAplica
 import com.example.pesv_movil.preoperacional.data.ResponseFormById
 import com.example.pesv_movil.preoperacional.data.ResponseVehicleSinPre
 import okhttp3.MultipartBody
@@ -84,6 +85,13 @@ interface ApiService {
         @Header("Authorization") token: String,
         @Body body: RequestBodyForm
     ): Response<Unit>
+
+    @POST("/pesv/preoperacional/no-aplica")
+    suspend fun registerFormNoAplica(
+        @Header("Authorization") token: String,
+        @Body body: RequestBodyFormNoAplica
+    ): Response<Unit>
+
 
     @Multipart
     @POST("pesv/documents/uploadVehiculeId")
