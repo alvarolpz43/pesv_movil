@@ -19,7 +19,7 @@ object NetworkModule {
     @Singleton
     fun provideRetrofit():Retrofit{
         return Retrofit.Builder()
-            .baseUrl("https://backend-pesv.vercel.app/")
+            .baseUrl("https://backend-pesv.onrender.com")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
