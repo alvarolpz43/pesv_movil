@@ -166,6 +166,8 @@ fun FormVehicleScreen(navController: NavController, onClose: () -> Unit) {
                 }
                 Spacer(modifier = Modifier.height(24.dp))
                 Button(
+
+                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
                     onClick = {
 
                         if (claseSeleccionadaId == null || tipoSeleccionadoId == null || zonaSeleccionadaId == null || servicioSeleccionadoId == null || marcaSeleccionada.value.isEmpty() || capacidadSeleccionada.value == null || modeloSeleccionado.value == null || colorSeleccionado.value.isEmpty() || matriculaSeleccionada.value.isEmpty() || placaSeleccionada.value.isEmpty()) {
