@@ -49,6 +49,7 @@ class PreoperacionalViewModel(
 
     private fun fetchVehicles(forceReload: Boolean = false) {
         if (!forceReload && hasLoaded) return
+        hasLoaded = true  // Esto previene llamadas múltiples innecesarias
 
         viewModelScope.launch(Dispatchers.IO) {
             _isLoading.value = true

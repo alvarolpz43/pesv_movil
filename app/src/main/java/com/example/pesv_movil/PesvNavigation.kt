@@ -2,6 +2,7 @@ package com.example.pesv_movil
 
 
 object PesvScreens {
+    const val SPLASH_SCREEN = "splash"
     const val LOGIN_SCREEN = "login"
     const val HOME_SCREEN = "home"
     const val GARAJE_SCREEN = "garaje"

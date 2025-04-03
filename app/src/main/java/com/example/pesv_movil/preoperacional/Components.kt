@@ -14,10 +14,11 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.pesv_movil.R
 
-
+@Preview(showBackground = true)
 @Composable
 fun RoundedNotify(modifier: Modifier = Modifier.size(50.dp)) {
     Box(

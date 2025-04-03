@@ -4,10 +4,8 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import com.example.pesv_movil.login.domain.LoginUseCase
-import com.example.pesv_movil.login.ui.LoginViewModel
 import com.example.pesv_movil.ui.theme.Pesv_movilTheme
 import com.example.pesv_movil.utils.TokenManager
-import com.google.android.libraries.places.api.Places
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -21,22 +19,19 @@ class MainActivity : ComponentActivity() {
     lateinit var tokenManager: TokenManager
 
 
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        val startDestination = if (!tokenManager.isTokenExpiredBlocking()) {
-            PesvScreens.HOME_SCREEN
-        } else {
-            PesvScreens.LOGIN_SCREEN
-        }
+
+        val startDestination = PesvScreens.SPLASH_SCREEN
 
         setContent {
             Pesv_movilTheme {
                 PesvNavGraph(
                     loginUseCase = loginUseCase,
                     tokenManager = tokenManager,
-                    startDestination = startDestination)
+                    startDestination = startDestination
+                )
             }
         }
 
