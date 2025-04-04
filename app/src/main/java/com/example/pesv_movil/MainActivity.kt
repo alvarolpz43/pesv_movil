@@ -23,7 +23,12 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
 
 
-        val startDestination = PesvScreens.SPLASH_SCREEN
+
+        val startDestination = if (!tokenManager.isTokenExpiredBlocking()) {
+            PesvScreens.HOME_SCREEN
+        } else {
+            PesvScreens.LOGIN_SCREEN
+        }
 
         setContent {
             Pesv_movilTheme {

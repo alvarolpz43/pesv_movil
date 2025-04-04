@@ -23,7 +23,6 @@ import androidx.navigation.navArgument
 import com.example.pesv_movil.Garaje.FormVehicleScreen
 import com.example.pesv_movil.Garaje.GarajeScreen
 import com.example.pesv_movil.Notificaciones.NotificacionesScreen
-import com.example.pesv_movil.Splash.SplashViewModel
 import com.example.pesv_movil.desplazamientos.DesplazamientosViewModel
 import com.example.pesv_movil.desplazamientos.MapaScreen
 import com.example.pesv_movil.home.HomeScreen
@@ -35,7 +34,6 @@ import com.example.pesv_movil.preoperacional.Form.FormPreoperacionalScreen
 import com.example.pesv_movil.preoperacional.Form.FormPreoperacionalViewModel
 import com.example.pesv_movil.preoperacional.ListaVehiculos.PreoperacionalScreen
 import com.example.pesv_movil.preoperacional.ListaVehiculos.PreoperacionalViewModel
-import com.example.pesv_movil.splash.SplashScreen
 import com.example.pesv_movil.utils.AppModalDrawer
 import com.example.pesv_movil.utils.TokenManager
 import kotlinx.coroutines.CoroutineScope
@@ -72,15 +70,6 @@ fun PesvNavGraph(
             )
         }
 
-        // Nueva pantalla de Splash
-        composable(route = PesvScreens.SPLASH_SCREEN) {
-            val splashViewModel: SplashViewModel = hiltViewModel()
-
-            SplashScreen(
-                navController = navController,
-                viewModel = splashViewModel
-            )
-        }
 
 
         composable(PesvScreens.DESPLAZAMIENTOS_SCREEN) {
@@ -117,7 +106,8 @@ fun PesvNavGraph(
             AppModalDrawer(
                 drawerState, currentRoute, navActions
             ) {
-                HomeScreen(navController = navController,
+                HomeScreen(
+                    navController = navController,
                     tokenManager = tokenManager,
                     openDrawer = { coroutineScope.launch { drawerState.open() } })
             }
@@ -138,14 +128,16 @@ fun PesvNavGraph(
             AppModalDrawer(
                 drawerState, currentRoute, navActions
             ) {
-                NotificacionesScreen(navController = navController,
+                NotificacionesScreen(
+                    navController = navController,
                     tokenManager = tokenManager,
                     openDrawer = { coroutineScope.launch { drawerState.open() } })
             }
         }
 
         composable(PesvScreens.FORM_VEHICLE_SCREEN) {
-            FormVehicleScreen(navController = navController,
+            FormVehicleScreen(
+                navController = navController,
                 onClose = { navController.popBackStack() })
         }
 
