@@ -114,6 +114,10 @@ dependencies {
     implementation(libs.maps.compose)
     implementation(libs.play.services.location) //Localitation
 
+    //Lottie
+    implementation("com.airbnb.android:lottie-compose:6.0.0")
+
+
     //Places google
     implementation("com.google.android.libraries.places:places:3.3.0") // Para autocompletado
 }
