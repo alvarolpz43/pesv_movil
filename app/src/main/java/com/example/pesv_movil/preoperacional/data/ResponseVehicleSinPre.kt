@@ -25,3 +25,30 @@ data class DataVehicleSinPre(
     val estadoVehiculo: Boolean,
     val fechaCreacion: String,
 )
+
+
+
+
+data class ApiVehicleSinPreResponse(
+    val success: Boolean,
+    val message: String?,
+    val data: List<VehiclePreoperacionalWrapper>
+)
+
+data class VehiclePreoperacionalWrapper(
+    val vehiculo: VehicleApiData,
+    val formularioAsignado: FormularioAsignado?,
+    val debeRealizar: Boolean
+)
+
+data class VehicleApiData(
+    val _id: String,
+    val placa: String,
+    val marca: String
+    // Solo los campos que realmente vienen en la API
+)
+
+data class FormularioAsignado(
+    val _id: String,
+    val version: Int
+)

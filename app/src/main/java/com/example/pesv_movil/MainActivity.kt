@@ -3,6 +3,8 @@ package com.example.pesv_movil
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.viewModels
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import com.example.pesv_movil.login.domain.LoginUseCase
 import com.example.pesv_movil.ui.theme.Pesv_movilTheme
 import com.example.pesv_movil.utils.TokenManager
@@ -14,34 +16,35 @@ class MainActivity : ComponentActivity() {
 
     @Inject
     lateinit var loginUseCase: LoginUseCase
-
     @Inject
     lateinit var tokenManager: TokenManager
-
+    private val viewModel: MainViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
 
-
-        val startDestination = if (!tokenManager.isTokenExpiredBlocking()) {
-            PesvScreens.HOME_SCREEN
-        } else {
-            PesvScreens.LOGIN_SCREEN
+        installSplashScreen().setKeepOnScreenCondition {
+            viewModel.isLoading
         }
 
-        setContent {
-            Pesv_movilTheme {
-                PesvNavGraph(
-                    loginUseCase = loginUseCase,
-                    tokenManager = tokenManager,
-                    startDestination = startDestination
-                )
+
+        viewModel.checkAuthentication { isAuthenticated ->
+            val startDestination = if (isAuthenticated) {
+                PesvScreens.HOME_SCREEN
+            } else {
+                PesvScreens.LOGIN_SCREEN
+            }
+
+            setContent {
+                Pesv_movilTheme {
+                    PesvNavGraph(
+                        loginUseCase = loginUseCase,
+                        tokenManager = tokenManager,
+                        startDestination = startDestination
+                    )
+                }
             }
         }
-
-
     }
 }
-
-

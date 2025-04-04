@@ -29,6 +29,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -59,8 +60,6 @@ fun PreoperacionalScreen(
     val isLoading by preoperacionalViewModel.isLoading.collectAsState()
     val showDialog by preoperacionalViewModel.showDialog.collectAsState()
     val keyboardController = LocalSoftwareKeyboardController.current
-
-
 
 
 

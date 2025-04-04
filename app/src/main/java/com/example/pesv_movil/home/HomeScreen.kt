@@ -198,21 +198,21 @@ fun NotifyPreoperacional(
         key1 = refreshUpdates
     ) {
         withContext(Dispatchers.IO) {
-            try {
-                val tokenValue = tokenManager.token.first() ?: ""
-                val userId = tokenManager.getUserIdBlocking() ?: ""
-                Log.d("FetchMyVehiculosId", "ID del usuario: $userId")
-
-                val response = apiService.getVehicleSinPreoperacional("Bearer $tokenValue")
-                if (response.isSuccessful) {
-                    value = response.body()
-                    Log.d("FetchMyVehiculos", "Respuesta exitosa: ${response.body()}")
-                } else {
-                    Log.e("FetchMyVehiculos", "Error en la respuesta: ${response.code()}")
-                }
-            } catch (e: Exception) {
-                Log.e("FetchMyVehiculos", "Error fetching vehicles: ${e.message}")
-            }
+//            try {
+//                val tokenValue = tokenManager.token.first() ?: ""
+//                val userId = tokenManager.getUserIdBlocking() ?: ""
+//                Log.d("FetchMyVehiculosId", "ID del usuario: $userId")
+//
+//                val response = apiService.getVehicleSinPreoperacional("Bearer $tokenValue")
+//                if (response.isSuccessful) {
+//                    value = response.body()?.data
+//                    Log.d("FetchMyVehiculos", "Respuesta exitosa: ${response.body()}")
+//                } else {
+//                    Log.e("FetchMyVehiculos", "Error en la respuesta: ${response.code()}")
+//                }
+//            } catch (e: Exception) {
+//                Log.e("FetchMyVehiculos", "Error fetching vehicles: ${e.message}")
+//            }
         }
     }
 

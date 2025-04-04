@@ -9,4 +9,5 @@
     <string name="noti_title">Notificaciones</string>
     <string name="logOut">Cerrar Sesion</string>
     <string name="open_drawer">Open Drawer</string>
+    <string name="PESV">PESV</string>
 </resources>
