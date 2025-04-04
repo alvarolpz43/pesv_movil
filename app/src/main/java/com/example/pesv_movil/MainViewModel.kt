@@ -23,7 +23,7 @@ class MainViewModel @Inject constructor(
     fun checkAuthentication(onComplete: (Boolean) -> Unit) {
         viewModelScope.launch {
             // Simular carga inicial necesaria
-            delay(500) // Mínimo tiempo para mostrar el branding
+            delay(200) // Mínimo tiempo para mostrar el branding
 
             // Verificar autenticación real
             val isAuthenticated = !tokenManager.isTokenExpiredBlocking()
