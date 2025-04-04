@@ -104,7 +104,6 @@ fun HomeScreen(
                     }
 
 
-
             ) {
                 NotifyPreoperacional(
                     tokenManager = tokenManager,
@@ -198,21 +197,21 @@ fun NotifyPreoperacional(
         key1 = refreshUpdates
     ) {
         withContext(Dispatchers.IO) {
-//            try {
-//                val tokenValue = tokenManager.token.first() ?: ""
-//                val userId = tokenManager.getUserIdBlocking() ?: ""
-//                Log.d("FetchMyVehiculosId", "ID del usuario: $userId")
-//
-//                val response = apiService.getVehicleSinPreoperacional("Bearer $tokenValue")
-//                if (response.isSuccessful) {
-//                    value = response.body()?.data
-//                    Log.d("FetchMyVehiculos", "Respuesta exitosa: ${response.body()}")
-//                } else {
-//                    Log.e("FetchMyVehiculos", "Error en la respuesta: ${response.code()}")
-//                }
-//            } catch (e: Exception) {
-//                Log.e("FetchMyVehiculos", "Error fetching vehicles: ${e.message}")
-//            }
+            try {
+                val tokenValue = tokenManager.token.first() ?: ""
+                val userId = tokenManager.getUserIdBlocking() ?: ""
+                Log.d("FetchMyVehiculosId", "ID del usuario: $userId")
+
+                val response = apiService.getVehicleSinPreoperacional("Bearer $tokenValue")
+                if (response.isSuccessful) {
+                    value = response.body()
+                    Log.d("FetchMyVehiculos", "Respuesta exitosa: ${response.body()}")
+                } else {
+                    Log.e("FetchMyVehiculos", "Error en la respuesta: ${response.code()}")
+                }
+            } catch (e: Exception) {
+                Log.e("FetchMyVehiculos", "Error fetching vehicles: ${e.message}")
+            }
         }
     }
 
@@ -298,117 +297,5 @@ fun NotifyPreoperacional(
 
 }
 
-@Preview(showBackground = true)
-@Composable
-fun BodyGarajePreview() {
-    HomeScreenPreviewOnlyUI();
-}
 
 
-// 🔹 Versión sin navController ni TokenManager solo para preview
-@Composable
-fun HomeScreenPreviewOnlyUI() {
-    Scaffold(
-        modifier = Modifier.fillMaxSize(),
-        topBar = { Text(text = "Vista de prueba", modifier = Modifier.padding(16.dp)) }
-    ) { paddingValues ->
-        ConstraintLayout(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(paddingValues)
-        ) {
-            val (buttonDesplazamientos, buttonPreoperacional, logo) = createRefs()
-
-
-
-            GreenLogo(
-                modifier = Modifier
-                    .size(150.dp)
-                    .constrainAs(logo)
-                    {
-                        top.linkTo(parent.top)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-
-                    })
-
-
-
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
-                    .height(120.dp)
-                    .border(
-                        1.dp,
-                        colorResource(id = R.color.black),
-                        shape = RoundedCornerShape(8.dp)
-                    )
-                    .constrainAs(buttonPreoperacional) {
-                        top.linkTo(logo.bottom)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                    }
-                    .clickable { println("Preoperacional clicado") },
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-
-                elevation = CardDefaults.cardElevation(defaultElevation = 16.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp), // Espaciado interno
-                    verticalAlignment = Alignment.CenterVertically // Centrar ícono y texto verticalmente
-                ) {
-
-
-                    PreoperacionalIcon(
-                        modifier = Modifier
-                    )
-                    Text(
-                        text = "Pre-Operacional",
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(start = 8.dp) // Espaciado entre ícono y texto
-                    )
-                }
-            }
-
-            Card(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 16.dp)
-                    .height(120.dp)
-
-                    .constrainAs(buttonDesplazamientos) {
-                        top.linkTo(buttonPreoperacional.bottom)
-                        start.linkTo(parent.start)
-                        end.linkTo(parent.end)
-                    },
-                colors = CardDefaults.cardColors(containerColor = Color.White),
-                elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
-            ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp), // Espaciado interno
-                    verticalAlignment = Alignment.CenterVertically // Centrar ícono y texto verticalmente
-                ) {
-
-
-                    DesplazamientosIcon(
-                        modifier = Modifier
-
-                    )
-                    Text(
-                        text = "Desplazamientos",
-                        fontSize = 22.sp,
-                        fontWeight = FontWeight.Bold,
-                        modifier = Modifier.padding(start = 8.dp) // Espaciado entre ícono y texto
-                    )
-                }
-            }
-
-        }
-    }
-}
