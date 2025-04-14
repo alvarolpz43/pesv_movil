@@ -27,6 +27,7 @@ data class InfoVehicle(
     val updatedAt: String,
     val __v: Int
 )
+
 data class UserInfo(
     val _id: String,
     val name: String,

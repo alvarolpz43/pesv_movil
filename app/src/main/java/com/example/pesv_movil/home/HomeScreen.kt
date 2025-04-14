@@ -155,7 +155,7 @@ fun HomeScreen(
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
                     }
-                    .clickable { navController.navigate(PesvScreens.DESPLAZAMIENTOS_SCREEN) }, //Aqui voy al MapaAcreen
+                    .clickable { navController.navigate(PesvScreens.DESPLAZAMIENTO_SCREEN_1) }, //Aqui voy al MapaAcreen
                 elevation = CardDefaults.cardElevation(defaultElevation = 16.dp)
             ) {
                 Row(

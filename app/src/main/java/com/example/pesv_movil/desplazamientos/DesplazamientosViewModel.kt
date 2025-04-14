@@ -6,10 +6,17 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
+import android.widget.Toast
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.pesv_movil.core.network.RetrofitHelper
+import com.example.pesv_movil.data.ApiService
+import com.example.pesv_movil.desplazamientos.network.ApiDesplazamientos
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
@@ -35,50 +42,9 @@ class DesplazamientosViewModel @Inject constructor(
 ) : ViewModel() {
 
 
+    private val apiService: ApiDesplazamientos =
+        RetrofitHelper.getRetrofit().create(ApiDesplazamientos::class.java)
 
-    private val placesClient: PlacesClient = Places.createClient(context); //Creamos el placesClient
-    private val _autocompletePredictions = MutableStateFlow<List<AutocompletePrediction>>(emptyList())
-    val autocompletePredictions: StateFlow<List<AutocompletePrediction>> = _autocompletePredictions
-
-    private val _autocompleteLoading = MutableStateFlow(false)
-    val autocompleteLoading: StateFlow<Boolean> = _autocompleteLoading
-
-    private val _autocompleteError = MutableStateFlow<String?>(null)
-    val autocompleteError: StateFlow<String?> = _autocompleteError
-
-
-    fun obtenerPredicciones(query: String) {
-        if (query.isBlank()) {
-            _autocompletePredictions.value = emptyList()
-            return
-        }
-
-        viewModelScope.launch {
-            _autocompleteLoading.value = true
-            _autocompleteError.value = null
-            try {
-                val token = AutocompleteSessionToken.newInstance()
-                val request = FindAutocompletePredictionsRequest.builder()
-                    .setSessionToken(token)
-                    .setQuery(query)
-                    .setTypeFilter(TypeFilter.ADDRESS) // Filtra por direcciones (puedes ajustar esto)
-                    .build()
-
-                placesClient.findAutocompletePredictions(request)
-                    .addOnSuccessListener { response ->
-                        _autocompletePredictions.value = response.autocompletePredictions
-                        _autocompleteLoading.value = false
-                    }
-                    .addOnFailureListener { exception ->
-                        _autocompleteError.value = exception.message ?: "Error al obtener predicciones"
-                        _autocompleteLoading.value = false
-                    }
-            } catch (e: Exception) {
-                _autocompleteError.value = e.message ?: "Error desconocido"
-                _autocompleteLoading.value = false
-            }
-        }
-    }
 
 
     // Estados para la ubicación de origen y destino
@@ -94,12 +60,89 @@ class DesplazamientosViewModel @Inject constructor(
     var locationLoading = mutableStateOf(false)
     var locationError = mutableStateOf<String?>(null)
 
+    val opciones = listOf("Harvester", "Forwarder", "Mazda", "Otro")
+    var vehiculoSeleccionado by mutableStateOf("")
+        private set
+
+    var p_inicio by mutableStateOf<String>("")
+    var p_final by mutableStateOf<String>("")
+    var numeroText by mutableStateOf("")
+
+    var p_inicioError by mutableStateOf<String?>(null)
+        private set
+
+    var p_FinalError by mutableStateOf<String?>(null)
+        private set
+
+    var vehiculoSeleccionadoError by mutableStateOf<String?>(null)
+        private set
+
+    val numero: Int?
+        get() = numeroText.toIntOrNull()
+
+    fun onVehiculoSeleccionado(value: String) {
+        vehiculoSeleccionado = value
+
+        if (value.isNotBlank()) {
+            vehiculoSeleccionadoError = null
+        }
+    }
+
+    fun onChangePuntoInicio(value: String) {
+        p_inicio = value
+        if (p_inicioError != null && value.isNotBlank()) {
+            p_inicioError = null
+        }
+    }
+
+
+    fun onChangePuntoFinal(value: String) {
+        p_final = value
+
+        if (p_final != null && value.isNotBlank()) {
+            p_FinalError = null
+        }
+    }
+
+
+    fun onChangeNumber(value: String) {
+        numeroText = value
+    }
+
+    fun enviarFormulario() {
+        var valido = true
+
+        if (p_inicio.isBlank()) {
+            p_inicioError = "El Punto de Inicio es requerido"
+            valido = false
+
+        }
+        if (p_final.isBlank()) {
+            p_FinalError = "El Punto de Final es requerido"
+            valido = false
+
+        }
+        if (vehiculoSeleccionado == "") {
+            vehiculoSeleccionadoError = "Selecciona un Vehiculo"
+            valido = false
+        }
+
+        if (valido) {
+            Toast.makeText(
+                this.context,
+                "Formulario Enviado $vehiculoSeleccionado",
+                Toast.LENGTH_SHORT
+            ).show()
+        }
+
+    }
+
     private val fusedLocationClient: FusedLocationProviderClient =
         LocationServices.getFusedLocationProviderClient(context)
 
-    // -------------------------
+    // ------------------
     // 🔹 Métodos para actualizar estados
-    // -------------------------
+    // ------------------
     fun setOrigen(nuevoOrigen: LatLng) {
         _origenSeleccionado.value = nuevoOrigen
     }

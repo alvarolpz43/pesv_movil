@@ -60,6 +60,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
@@ -140,14 +141,11 @@ fun GarajeScreen(
             )
 
             Box(modifier = Modifier.fillMaxSize()) {
-
                 FetchMyVehiculos(
                     tokenManager = tokenManager,
                     apiService = apiService,
                     context = LocalContext.current
                 )
-
-
             }
         }
     }
@@ -171,6 +169,8 @@ fun FetchMyVehiculos(tokenManager: TokenManager, apiService: ApiService, context
                 if (response.isSuccessful) {
                     Log.d("FetchMyVehiculos", "Respuesta exitosa: ${response.body()}")
                     response.body()
+
+
                 } else {
                     Log.e("FetchMyVehiculos", "Error en la respuesta: ${response.code()}")
                     null
@@ -184,6 +184,7 @@ fun FetchMyVehiculos(tokenManager: TokenManager, apiService: ApiService, context
 
     val vehiclesInUse = vehiclesResponse?.data?.filter { it.vehiculoEnUso } ?: emptyList()
     val vehiclesAvailable = vehiclesResponse?.data?.filter { !it.vehiculoEnUso } ?: emptyList()
+
 
     var showDocumentUploadModal by remember { mutableStateOf(false) }
     var servicioSeleccionadoId by remember { mutableStateOf<String?>(null) }
@@ -235,6 +236,10 @@ fun FetchMyVehiculos(tokenManager: TokenManager, apiService: ApiService, context
                                 }
                             },
                             onUploadDocuments = {},
+                            onShow = {
+                                Toast.makeText(context, "Hola vehiculos activos", Toast.LENGTH_LONG)
+                                    .show()
+                            },
                             message = "No hay Vehículos en uso",
                             modifier = Modifier.border(2.dp, colorResource(id = R.color.black)),
 
@@ -281,6 +286,9 @@ fun FetchMyVehiculos(tokenManager: TokenManager, apiService: ApiService, context
                                 selectedVehicleId = vehicle._id
                                 showDocumentUploadModal = true
                             },
+                            onShow = {
+                                Toast.makeText(context, "Hola", Toast.LENGTH_LONG).show()
+                            },
                             message = "No hay Vehículos Registrados",
                             modifier = Modifier,
                         )
@@ -324,12 +332,17 @@ fun VehicleCard(
     onChangeStatus: () -> Unit,
     onDelete: () -> Unit,
     onUploadDocuments: () -> Unit,
+    onShow: () -> Unit,
     message: String,
     modifier: Modifier
 ) {
     if (vehicle != null) {
+
+        val isActive = vehicle.estadoVehiculo
         Card(
+            onClick = { if (isActive) onShow() },
             modifier = Modifier
+                .alpha(if (isActive) 1f else 0.5f) // Efecto visual de desactivado
                 .border(
                     1.dp,
                     colorResource(id = R.color.black),
@@ -394,8 +407,15 @@ fun VehicleCard(
 
                     Box(
                         modifier = Modifier
-                            .background(Color(0xFFFFEB3B), shape = RoundedCornerShape(8.dp)) // Amarillo suave con bordes redondeados
-                            .border(1.dp, colorResource(id = R.color.black), shape = RoundedCornerShape(8.dp))
+                            .background(
+                                Color(0xFFFFEB3B),
+                                shape = RoundedCornerShape(8.dp)
+                            ) // Amarillo suave con bordes redondeados
+                            .border(
+                                1.dp,
+                                colorResource(id = R.color.black),
+                                shape = RoundedCornerShape(8.dp)
+                            )
                             .padding(horizontal = 8.dp, vertical = 2.dp)
                     ) {
                         Text(
@@ -416,7 +436,6 @@ fun VehicleCard(
                         overflow = TextOverflow.Ellipsis
                     )
                 }
-
 
 
             }
@@ -475,6 +494,7 @@ fun VehicleCard(
                 ) {
                     Button(
                         onClick = onChangeStatus,
+                        enabled = isActive,
                         modifier = Modifier
                             .weight(1f),
                         colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.primary))
@@ -489,9 +509,10 @@ fun VehicleCard(
 
                     Button(
                         onClick = onUploadDocuments,
+
                         modifier = Modifier
                             .weight(1f),
-                        enabled = !vehicle.vehiculoEnUso,
+                        enabled = isActive && !vehicle.vehiculoEnUso,
                         colors = ButtonDefaults.buttonColors(containerColor = colorResource(id = R.color.secondary))
                     ) {
                         Icon(Icons.Filled.CloudUpload, contentDescription = "Cargar Documentos")
@@ -525,11 +546,9 @@ fun UpdateStatusVehicleInUsing(
 
     CoroutineScope(Dispatchers.IO).launch {
         try {
-
             val token = tokenManager.token.first() ?: ""
 
             Log.d("UpdateStatusVehicleInUsing", "el token es : $token")
-
             val response = apiService.updateVehicleStateUsing("Bearer $token", idVehicle)
             withContext(Dispatchers.Main) {
                 if (response.isSuccessful) {
@@ -913,6 +932,7 @@ fun VehicleCardPreview() {
         onChangeStatus = {},
         onDelete = {},
         onUploadDocuments = {},
+        onShow = {},
         message = "No hay Vehículos Registrados",
         modifier = Modifier,
     )

@@ -1,7 +1,5 @@
 package com.example.pesv_movil
 
-
-import BuscarUbicacionScreen
 import androidx.compose.material3.DrawerState
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.rememberDrawerState
@@ -24,6 +22,7 @@ import com.example.pesv_movil.Garaje.FormVehicleScreen
 import com.example.pesv_movil.Garaje.GarajeScreen
 import com.example.pesv_movil.Notificaciones.NotificacionesScreen
 import com.example.pesv_movil.desplazamientos.DesplazamientosViewModel
+import com.example.pesv_movil.desplazamientos.FirstScreenDesplazamientos
 import com.example.pesv_movil.desplazamientos.MapaScreen
 import com.example.pesv_movil.home.HomeScreen
 import com.example.pesv_movil.login.domain.LoginUseCase
@@ -70,31 +69,6 @@ fun PesvNavGraph(
             )
         }
 
-
-
-
-
-        composable(PesvScreens.DESPLAZAMIENTOS_SCREEN) {
-            val desplazamientosViewModel: DesplazamientosViewModel = hiltViewModel()
-
-            val origen by desplazamientosViewModel.origenSeleccionado.collectAsState()
-            val destino by desplazamientosViewModel.destinoSeleccionado.collectAsState()
-
-            MapaScreen(
-                navController = navController,
-                desplazamientosViewModel = desplazamientosViewModel,
-                origenSeleccionado = origen,
-                destinoSeleccionado = destino
-            )
-        }
-
-        composable(PesvScreens.BUSCAR_UBICACION_SCREEN) {
-            val desplazamientosViewModel: DesplazamientosViewModel =
-                hiltViewModel() // ✅ Obtén ViewModel correctamente
-            BuscarUbicacionScreen(
-                navController = navController, desplazamientosViewModel = desplazamientosViewModel
-            )
-        }
 
 
 
@@ -169,6 +143,28 @@ fun PesvNavGraph(
 
                 )
 
+            )
+        }
+
+
+        composable(PesvScreens.DESPLAZAMIENTOS_SCREEN) {
+            val desplazamientosViewModel: DesplazamientosViewModel = hiltViewModel()
+
+            val origen by desplazamientosViewModel.origenSeleccionado.collectAsState()
+            val destino by desplazamientosViewModel.destinoSeleccionado.collectAsState()
+
+            MapaScreen(
+                navController = navController,
+                desplazamientosViewModel = desplazamientosViewModel,
+            )
+        }
+
+        composable(PesvScreens.DESPLAZAMIENTO_SCREEN_1) {
+            val desplazamientosViewModel: DesplazamientosViewModel = hiltViewModel()
+
+            FirstScreenDesplazamientos(
+                navController = navController,
+                desplazamientosViewModel = desplazamientosViewModel,
             )
         }
 
