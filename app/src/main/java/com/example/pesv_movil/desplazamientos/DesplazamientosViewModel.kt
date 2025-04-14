@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import android.location.LocationManager
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -17,6 +18,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.pesv_movil.core.network.RetrofitHelper
 import com.example.pesv_movil.data.ApiService
 import com.example.pesv_movil.desplazamientos.network.ApiDesplazamientos
+import com.example.pesv_movil.utils.TokenManager
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
@@ -28,9 +30,11 @@ import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRe
 import com.google.android.libraries.places.api.net.PlacesClient
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
 import javax.inject.Inject
@@ -38,14 +42,12 @@ import kotlin.coroutines.resume
 
 @HiltViewModel
 class DesplazamientosViewModel @Inject constructor(
-    @ApplicationContext private val context: Context
-) : ViewModel() {
+    @ApplicationContext private val context: Context,
+    private val tokenManager: TokenManager
 
-
+    ) : ViewModel() {
     private val apiService: ApiDesplazamientos =
         RetrofitHelper.getRetrofit().create(ApiDesplazamientos::class.java)
-
-
 
     // Estados para la ubicación de origen y destino
     private val _origenSeleccionado = MutableStateFlow(DEFAULT_LOCATION)
@@ -95,6 +97,34 @@ class DesplazamientosViewModel @Inject constructor(
         }
     }
 
+    init {
+
+        getVehiculos()
+    }
+
+    private fun getVehiculos() {
+        viewModelScope.launch(Dispatchers.IO) {
+            val token = tokenManager.token.first() ?: ""
+
+
+            val response = apiService.getUserVehiculos("Bearer $token");
+
+            if (response.isSuccessful && response.body()!!.success) {
+                Log.e("rojo", response.body()?.data.toString())
+
+
+                val vehiculos = response.body()?.data ?: emptyList()
+                val op = vehiculos.map {
+                    "${it.marca} - ${it.placa}"
+                }
+
+
+            }
+        }
+
+
+    }
+
 
     fun onChangePuntoFinal(value: String) {
         p_final = value
@@ -141,8 +171,8 @@ class DesplazamientosViewModel @Inject constructor(
         LocationServices.getFusedLocationProviderClient(context)
 
     // ------------------
-    // 🔹 Métodos para actualizar estados
-    // ------------------
+// 🔹 Métodos para actualizar estados
+// ------------------
     fun setOrigen(nuevoOrigen: LatLng) {
         _origenSeleccionado.value = nuevoOrigen
     }
@@ -152,8 +182,8 @@ class DesplazamientosViewModel @Inject constructor(
     }
 
     // -------------------------
-    // 🔹 Métodos para manejar la ubicación
-    // -------------------------
+// 🔹 Métodos para manejar la ubicación
+// -------------------------
     fun getCurrentLocation() {
         if (!verificarPermisosUbicacion()) return
         if (!verificarUbicacionHabilitada()) return

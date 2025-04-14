@@ -160,14 +160,13 @@ fun PesvNavGraph(
         }
 
         composable(PesvScreens.DESPLAZAMIENTO_SCREEN_1) {
-            val desplazamientosViewModel: DesplazamientosViewModel = hiltViewModel()
+
 
             FirstScreenDesplazamientos(
                 navController = navController,
-                desplazamientosViewModel = desplazamientosViewModel,
+                desplazamientosViewModel = DesplazamientosViewModel(context, tokenManager)
             )
         }
-
 
     }
 }
