@@ -25,6 +25,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import com.example.pesv_movil.R
+import com.example.pesv_movil.desplazamientos.model.OpcionVehiculo
 
 
 @Composable
@@ -62,13 +63,14 @@ fun PreoperacionalIcon(modifier: Modifier = Modifier.size(50.dp)) {
 fun SelectField(
     modifier: Modifier,
     label: String,
-
     error: String? = null,
-    options: List<String>,
+    options: List<OpcionVehiculo>,
     selectedOption: String,
     onOptionSelected: (String) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
+
+    val selectedText = options.find { it.id == selectedOption }?.displayText ?: ""
 
     ExposedDropdownMenuBox(
         expanded = expanded,
@@ -76,7 +78,7 @@ fun SelectField(
     ) {
         TextField(
             readOnly = true,
-            value = selectedOption,
+            value = selectedText,
             onValueChange = {},
             label = { Text(label) },
             isError = error != null, // ✅ activa el estado de error
@@ -111,11 +113,14 @@ fun SelectField(
             onDismissRequest = { expanded = false }
         ) {
             options.forEach { option ->
+
+
                 DropdownMenuItem(
-                    text = { Text(option) },
+                    text = { Text(option.displayText) },
                     onClick = {
-                        onOptionSelected(option)
+                        onOptionSelected(option.id)
                         expanded = false
+
                     }
                 )
             }

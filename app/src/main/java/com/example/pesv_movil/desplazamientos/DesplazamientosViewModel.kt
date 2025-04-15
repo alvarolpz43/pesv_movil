@@ -10,24 +10,17 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.pesv_movil.core.network.RetrofitHelper
-import com.example.pesv_movil.data.ApiService
+import com.example.pesv_movil.desplazamientos.model.OpcionVehiculo
 import com.example.pesv_movil.desplazamientos.network.ApiDesplazamientos
 import com.example.pesv_movil.utils.TokenManager
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.libraries.places.api.Places
-import com.google.android.libraries.places.api.model.AutocompletePrediction
-import com.google.android.libraries.places.api.model.AutocompleteSessionToken
-import com.google.android.libraries.places.api.model.TypeFilter
-import com.google.android.libraries.places.api.net.FindAutocompletePredictionsRequest
-import com.google.android.libraries.places.api.net.PlacesClient
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
@@ -45,7 +38,7 @@ class DesplazamientosViewModel @Inject constructor(
     @ApplicationContext private val context: Context,
     private val tokenManager: TokenManager
 
-    ) : ViewModel() {
+) : ViewModel() {
     private val apiService: ApiDesplazamientos =
         RetrofitHelper.getRetrofit().create(ApiDesplazamientos::class.java)
 
@@ -62,7 +55,11 @@ class DesplazamientosViewModel @Inject constructor(
     var locationLoading = mutableStateOf(false)
     var locationError = mutableStateOf<String?>(null)
 
-    val opciones = listOf("Harvester", "Forwarder", "Mazda", "Otro")
+
+    private val _opciones = MutableStateFlow<List<OpcionVehiculo>>(emptyList())
+    val opciones: StateFlow<List<OpcionVehiculo>> = _opciones
+
+
     var vehiculoSeleccionado by mutableStateOf("")
         private set
 
@@ -106,7 +103,6 @@ class DesplazamientosViewModel @Inject constructor(
         viewModelScope.launch(Dispatchers.IO) {
             val token = tokenManager.token.first() ?: ""
 
-
             val response = apiService.getUserVehiculos("Bearer $token");
 
             if (response.isSuccessful && response.body()!!.success) {
@@ -114,8 +110,12 @@ class DesplazamientosViewModel @Inject constructor(
 
 
                 val vehiculos = response.body()?.data ?: emptyList()
-                val op = vehiculos.map {
-                    "${it.marca} - ${it.placa}"
+
+                _opciones.value = vehiculos.map {
+                    OpcionVehiculo(
+                        id = it._id,
+                        displayText = "${it.marca} - ${it.placa}"
+                    )
                 }
 
 
@@ -134,10 +134,6 @@ class DesplazamientosViewModel @Inject constructor(
         }
     }
 
-
-    fun onChangeNumber(value: String) {
-        numeroText = value
-    }
 
     fun enviarFormulario() {
         var valido = true
@@ -164,6 +160,7 @@ class DesplazamientosViewModel @Inject constructor(
                 Toast.LENGTH_SHORT
             ).show()
         }
+
 
     }
 

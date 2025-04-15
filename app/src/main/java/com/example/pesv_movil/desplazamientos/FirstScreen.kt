@@ -21,6 +21,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,6 +41,10 @@ fun FirstScreenDesplazamientos(
     navController: NavHostController,
     desplazamientosViewModel: DesplazamientosViewModel
 ) {
+
+
+    val opciones by desplazamientosViewModel.opciones.collectAsState()
+
 
 
     Scaffold(
@@ -105,9 +110,7 @@ fun FirstScreenDesplazamientos(
             SelectField(
                 modifier = Modifier,
                 label = "Vehiculo",
-
-
-                options = desplazamientosViewModel.opciones,
+                options = opciones,
                 selectedOption = desplazamientosViewModel.vehiculoSeleccionado,
                 onOptionSelected = desplazamientosViewModel::onVehiculoSeleccionado,
                 error = desplazamientosViewModel.vehiculoSeleccionadoError
@@ -127,7 +130,8 @@ fun FirstScreenDesplazamientos(
             InputText(
                 value = desplazamientosViewModel.p_final,
                 onValueChange = desplazamientosViewModel::onChangePuntoFinal,
-                label = "Punto de Final"
+                label = "Punto de Final",
+                error = desplazamientosViewModel.p_FinalError
             )
 
 
