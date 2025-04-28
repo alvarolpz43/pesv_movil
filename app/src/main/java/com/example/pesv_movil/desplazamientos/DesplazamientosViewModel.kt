@@ -14,6 +14,9 @@ import androidx.compose.runtime.setValue
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavHostController
+import com.example.pesv_movil.PesvNavGraph
+import com.example.pesv_movil.PesvScreens
 import com.example.pesv_movil.core.network.RetrofitHelper
 import com.example.pesv_movil.desplazamientos.model.OpcionVehiculo
 import com.example.pesv_movil.desplazamientos.network.ApiDesplazamientos
@@ -135,7 +138,7 @@ class DesplazamientosViewModel @Inject constructor(
     }
 
 
-    fun enviarFormulario() {
+    fun enviarFormulario(navHostController: NavHostController) {
         var valido = true
 
         if (p_inicio.isBlank()) {
@@ -159,9 +162,11 @@ class DesplazamientosViewModel @Inject constructor(
                 "Formulario Enviado $vehiculoSeleccionado",
                 Toast.LENGTH_SHORT
             ).show()
+
+            navHostController.navigate(PesvScreens.DESPLAZAMIENTOS_SCREEN)
+
+
         }
-
-
     }
 
     private val fusedLocationClient: FusedLocationProviderClient =

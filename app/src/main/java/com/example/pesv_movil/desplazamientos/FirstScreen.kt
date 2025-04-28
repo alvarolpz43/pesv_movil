@@ -80,7 +80,7 @@ fun FirstScreenDesplazamientos(
             ) {
                 Button(
                     modifier = Modifier.padding(5.dp),
-                    onClick = desplazamientosViewModel::enviarFormulario
+                    onClick = { desplazamientosViewModel.enviarFormulario(navController) }
                 ) {
                     Text(
                         modifier = Modifier.fillMaxWidth(),
@@ -90,7 +90,7 @@ fun FirstScreenDesplazamientos(
                 }
             }
         },
-        ) { paddingValues ->
+    ) { paddingValues ->
         Column(
             modifier = Modifier
                 .fillMaxSize()

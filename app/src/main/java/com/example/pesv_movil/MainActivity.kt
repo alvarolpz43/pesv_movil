@@ -31,7 +31,7 @@ class MainActivity : ComponentActivity() {
 
         viewModel.checkAuthentication { isAuthenticated ->
             val startDestination = if (isAuthenticated) {
-                PesvScreens.DESPLAZAMIENTO_SCREEN_1
+                PesvScreens.HOME_SCREEN
             } else {
                 PesvScreens.LOGIN_SCREEN
             }

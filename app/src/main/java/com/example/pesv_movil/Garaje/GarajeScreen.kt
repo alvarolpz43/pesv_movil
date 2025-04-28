@@ -419,12 +419,14 @@ fun VehicleCard(
                             .padding(horizontal = 8.dp, vertical = 2.dp)
                     ) {
                         Text(
-                            text = vehicle.placa,
+                            text = vehicle.placa.takeIf { !it.isNullOrBlank() }
+                                ?: vehicle.codigo.orEmpty(),
                             style = MaterialTheme.typography.titleSmall,
                             color = Color.Black,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis
                         )
+
                     }
 
                     // Tipo de vehículo
@@ -917,7 +919,7 @@ fun VehicleCardPreview() {
             "marca",
             "service",
             2,
-            2024,
+            "2024",
             "verde",
             "fecha",
             "NEL02C",
@@ -926,7 +928,10 @@ fun VehicleCardPreview() {
             true,
             "fechaCracion",
             "fechas",
-            "feachas", 2
+            "feachas",
+            1,
+            "numero de equipo",
+            "code equipo"
         ),
         onEdit = {},
         onChangeStatus = {},

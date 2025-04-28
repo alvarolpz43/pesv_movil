@@ -15,7 +15,7 @@ data class InfoVehicle(
     val marca: String,
     val servicio: String,
     val capacidadVehiculo: Int,
-    val modeloVehiculo: Int,
+    val modeloVehiculo: String,
     val color: String,
     val fechaMatricula: String,
     val placa: String,
@@ -25,7 +25,11 @@ data class InfoVehicle(
     val fechaCreacion: String,
     val createdAt: String,
     val updatedAt: String,
-    val __v: Int
+    val __v: Int,
+    val numero_equipo: String,
+    val codigo: String,
+
+
 )
 
 data class UserInfo(

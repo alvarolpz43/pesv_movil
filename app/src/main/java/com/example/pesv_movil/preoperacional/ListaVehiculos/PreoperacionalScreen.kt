@@ -233,7 +233,8 @@ fun VehicleCard(vehicle: DataVehicleSinPre, onClick: () -> Unit) {
                         .padding(horizontal = 8.dp, vertical = 2.dp)
                 ) {
                     Text(
-                        text = vehicle.placa,
+                        text = vehicle.placa.takeIf { !it.isNullOrBlank() }
+                            ?: vehicle.codigo.orEmpty(),
                         style = MaterialTheme.typography.titleSmall,
                         color = Color.Black,
                         maxLines = 1,

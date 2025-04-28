@@ -16,7 +16,7 @@ data class DataVehicleSinPre(
     val marca: String,
     val servicio: String,
     val capacidadVehiculo: Int,
-    val modeloVehiculo: Int,
+    val modeloVehiculo: String,
     val color: String,
     val fechaMatricula: String,
     val placa: String,
@@ -24,9 +24,9 @@ data class DataVehicleSinPre(
     val vehiculoEnUso: Boolean,
     val estadoVehiculo: Boolean,
     val fechaCreacion: String,
+    val numero_equipo: String,
+    val codigo: String,
 )
-
-
 
 
 data class ApiVehicleSinPreResponse(
