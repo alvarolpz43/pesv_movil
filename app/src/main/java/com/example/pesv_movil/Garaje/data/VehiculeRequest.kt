@@ -7,7 +7,7 @@ data class VehiculeRequest(
     val marca: String,
     val servicio: String,
     val capacidadVehiculo: Int,
-    val modeloVehiculo: Int,
+    val modeloVehiculo: String,
     val color: String,
     val fechaMatricula: String,
     val placa : String,

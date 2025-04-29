@@ -27,7 +27,7 @@ import kotlinx.coroutines.withContext
 class FormPreoperacionalViewModel(
     private val tokenManager: TokenManager,
     private val vehicleId: String
-)  : ViewModel()  {
+) : ViewModel() {
 
     private val apiService: ApiService = RetrofitHelper.getRetrofit().create(ApiService::class.java)
 
@@ -55,6 +55,7 @@ class FormPreoperacionalViewModel(
 
                 if (response.isSuccessful && response.body()?.success == true) {
                     val formularioList = response.body()?.formulario ?: emptyList()
+                    Log.i("Formulario", response.body().toString())
 
                     if (formularioList.isNotEmpty()) {
                         _formulario.value = formularioList[0]  // Tomamos el primer formulario
@@ -73,17 +74,12 @@ class FormPreoperacionalViewModel(
             }
         }
     }
+
     private val _isSending = MutableStateFlow(false)
 
 
     private val _sendSuccess = MutableStateFlow<Boolean?>(null)
     val sendSuccess: StateFlow<Boolean?> = _sendSuccess
-
-
-
-
-
-
 
 
     fun enviarRespuestas(context: Context) = viewModelScope.launch {
@@ -118,7 +114,7 @@ class FormPreoperacionalViewModel(
                 apiService.registerForm("Bearer $userToken", requestBody)
             }
 
-            if (response.isSuccessful ) {
+            if (response.isSuccessful) {
                 _sendSuccess.value = true  // ✅ Formulario enviado con éxito
                 Log.i("FormViewModel", "Respuestas enviadas correctamente")
 

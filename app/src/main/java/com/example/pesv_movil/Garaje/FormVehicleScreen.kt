@@ -188,7 +188,7 @@ fun FormVehicleScreen(navController: NavController, onClose: () -> Unit) {
                                 context = context,
                                 vehicleRequest = VehiculeRequest(
                                     marca = marcaSeleccionada.value,
-                                    modeloVehiculo = modeloSeleccionado.value!!,
+                                    modeloVehiculo = modeloSeleccionado.value.toString(),
                                     color = colorSeleccionado.value,
                                     placa = placaSeleccionada.value,
                                     capacidadVehiculo = capacidadSeleccionada.value!!,
