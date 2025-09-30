@@ -1,6 +1,9 @@
 package com.example.pesv_movil.core
 
 import android.content.Context
+import com.example.pesv_movil.Garaje.repositories.FormVehicleRepository
+import com.example.pesv_movil.Garaje.repositories.GarajeRepository
+import com.example.pesv_movil.data.ApiService
 import com.example.pesv_movil.login.data.LoginClient
 import com.example.pesv_movil.utils.TokenManager
 import dagger.Module
@@ -17,9 +20,9 @@ import javax.inject.Singleton
 object NetworkModule {
     @Provides
     @Singleton
-    fun provideRetrofit():Retrofit{
+    fun provideRetrofit(): Retrofit {
         return Retrofit.Builder()
-            .baseUrl("https://backend-pesv.vercel.app/")
+            .baseUrl("https://backend-pesv-efagram.vercel.app/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 
@@ -27,13 +30,40 @@ object NetworkModule {
 
     @Provides
     @Singleton
+    fun provideApiService(retrofit: Retrofit): ApiService {
+        return retrofit.create(ApiService::class.java)
+    }
+
+
+    @Provides
+    @Singleton
     fun provideLoginClient(retrofit: Retrofit): LoginClient {
         return retrofit.create(LoginClient::class.java)
     }
 
-    @Provides
     @Singleton
+    @Provides
     fun provideTokenManager(@ApplicationContext context: Context): TokenManager {
         return TokenManager(context)
     }
+
+    @Provides
+    @Singleton
+    fun provideContext(@ApplicationContext context: Context): Context {
+        return context
+    }
+
+    @Provides
+    @Singleton
+    fun provideGarajeRepository(api: ApiService, token: TokenManager): GarajeRepository {
+        return GarajeRepository(api, token)
+    }
+
+    @Provides
+    @Singleton
+    fun provideFormVehicleRepository(api: ApiService, token: TokenManager): FormVehicleRepository {
+        return FormVehicleRepository(api, token)
+    }
+
+
 }

@@ -1,5 +1,7 @@
 package com.example.pesv_movil.Garaje.data
 
+import com.example.pesv_movil.Garaje.dto.vehicleDtos.ActividadVehiculoDto
+
 data class MyResponseVehiculo(
     val success: Boolean,
     val data: List<InfoVehicle>
@@ -10,7 +12,7 @@ data class InfoVehicle(
     val idUsuario: UserInfo,
     val idUsuarioAsignado: UserInfo?,
     val idClaseVehiculo: String,
-    val idActividadVehiculo: ActividadVehiculo,
+    val idActividadVehiculo: ActividadVehiculoDto,
     val idZona: Zona,
     val marca: String,
     val servicio: String,

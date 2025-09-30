@@ -27,6 +27,7 @@ class TokenManager @Inject constructor(private val context: Context) {
     val token: Flow<String?> = context.dataStore.data
         .map { preferences -> preferences[TOKEN_KEY] }
 
+
     suspend fun saveToken(token: String) {
         context.dataStore.edit { preferences ->
             preferences[TOKEN_KEY] = token

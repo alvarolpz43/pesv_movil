@@ -8,12 +8,14 @@ import android.widget.Toast
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -25,6 +27,7 @@ import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -39,7 +42,9 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.produceState
@@ -56,8 +61,11 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import com.example.pesv_movil.Garaje.data.VehiculeRequest
+import com.example.pesv_movil.Garaje.dto.vehicleDtos.VehicleRequestDto
+import com.example.pesv_movil.Garaje.viewModels.FormViewModel
 import com.example.pesv_movil.components.MyResponseSelects
 import com.example.pesv_movil.core.network.RetrofitHelper
 import com.example.pesv_movil.data.ApiService
@@ -73,267 +81,391 @@ import java.util.Locale
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun FormVehicleScreen(navController: NavController, onClose: () -> Unit) {
-    val tokenManager = TokenManager(LocalContext.current)
-    val apiService: ApiService = RetrofitHelper.getRetrofit().create(ApiService::class.java)
-    val keyboardController = LocalSoftwareKeyboardController.current
-    val scrollState = rememberScrollState()
-    val coroutineScope = rememberCoroutineScope()
+fun FormVehicleScreen(
+    navController: NavController,
+    onClose: () -> Unit,
+    viewModel: FormViewModel = hiltViewModel()
+) {
     val context = LocalContext.current
-    val isLoading = remember { mutableStateOf(false) }
+    val scrollState = rememberScrollState()
+
+    // State desde el VM
+    val zonas by viewModel.zonas.collectAsState()
+    val clases by viewModel.clases.collectAsState()
+    val tipos by viewModel.tipos.collectAsState()
+    val servicios by viewModel.servicios.collectAsState()
+
+    val loadingSelects by viewModel.loadingSelects.collectAsState()
+    val creatingVehicle by viewModel.creatingVehicle.collectAsState()
+    val errorSelects by viewModel.errorSelects.collectAsState()
+    val errorCreating by viewModel.errorcreatingVehicle.collectAsState()
+
+    // Campos del formulario (UI state)
+    var idTipo by remember { mutableStateOf<String?>(null) }
+    var idZona by remember { mutableStateOf<String?>(null) }
+    var idClase by remember { mutableStateOf<String?>(null) }
+    var idServicio by remember { mutableStateOf<String?>(null) }
+
+    var marca by remember { mutableStateOf("") }
+    var modelo by remember { mutableStateOf("") } // lo convertimos a Int? al enviar
+    var color by remember { mutableStateOf("") }
+    var placa by remember { mutableStateOf("") }
+    var capacidad by remember { mutableStateOf("") } // lo convertimos a Int? al enviar
+    var fechaMatricula by remember { mutableStateOf("") } // ISO string
+
     var showSuccessDialog by remember { mutableStateOf(false) }
-    var isSuccessful by remember { mutableStateOf(false) }
 
-
-    var tipoSeleccionadoId by remember { mutableStateOf<String?>(null) }
-    var zonaSeleccionadaId by remember { mutableStateOf<String?>(null) }
-    var claseSeleccionadaId by remember { mutableStateOf<String?>(null) }
-    var servicioSeleccionadoId by remember { mutableStateOf<String?>(null) }
-    val marcaSeleccionada = remember { mutableStateOf("") }
-    val modeloSeleccionado = remember { mutableStateOf<Int?>(null) }
-    val colorSeleccionado = remember { mutableStateOf("") }
-    val placaSeleccionada = remember { mutableStateOf("") }
-    val capacidadSeleccionada = remember { mutableStateOf<Int?>(null) }
-    val matriculaSeleccionada = remember { mutableStateOf("") }
+    // Cargar selects al abrir
+    LaunchedEffect(Unit) {
+        viewModel.loadSelectsData()
+    }
 
     Scaffold(
         topBar = {
             androidx.compose.material3.TopAppBar(
                 title = { Text("Registro Vehículo") },
                 navigationIcon = {
-                    IconButton(
-                        onClick = {
-                            navController.popBackStack()
-                            keyboardController?.hide()
-                        }
-                    ) {
+                    IconButton(onClick = { navController.popBackStack() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Volver")
                     }
                 }
             )
-        },
-        content = { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .verticalScroll(scrollState)
-                    .padding(16.dp)
-            ) {
-                Card(
-                    modifier = Modifier.fillMaxWidth(),
-                    elevation = androidx.compose.material3.CardDefaults.cardElevation(
-                        defaultElevation = 8.dp
-                    )
-                ) {
-                    Column(modifier = Modifier.padding(16.dp)) {
-                        MarcaInput(marcaSeleccionada)
-                        Spacer(modifier = Modifier.height(16.dp))
-                        ModeloInput(modeloSeleccionado)
-                        Spacer(modifier = Modifier.height(16.dp))
-                        ColorInput(colorSeleccionado)
-                        Spacer(modifier = Modifier.height(16.dp))
-                        PlacaInput(placaSeleccionada)
-                        Spacer(modifier = Modifier.height(16.dp))
-                        CapacidadInput(capacidadSeleccionada)
-                        Spacer(modifier = Modifier.height(16.dp))
-                        MatriculaInput(matriculaSeleccionada)
-                        Spacer(modifier = Modifier.height(16.dp))
-                        SelectTipoVehiculo(
-                            tokenManager = tokenManager,
-                            apiService = apiService,
-                            onTipoSelected = { tipoSeleccionadoId = it }
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        SelectZona(
-                            tokenManager = tokenManager,
-                            apiService = apiService,
-                            onZonaSelected = { zonaSeleccionadaId = it }
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        SelectClases(
-                            tokenManager = tokenManager,
-                            apiService = apiService,
-                            onClaseSelected = { claseSeleccionadaId = it }
-                        )
-                        Spacer(modifier = Modifier.height(16.dp))
-                        SelectServicio(
-                            tokenManager = tokenManager,
-                            apiService = apiService,
-                            onServicioSelected = { servicioSeleccionadoId = it }
-                        )
-                    }
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .verticalScroll(scrollState)
+                .padding(16.dp)
+        ) {
+            // Estado de carga / error de selects
+            if (loadingSelects) {
+                Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                    CircularProgressIndicator(Modifier.size(20.dp), strokeWidth = 2.dp)
+                    Spacer(Modifier.width(8.dp))
+                    Text("Cargando opciones…")
                 }
-                Spacer(modifier = Modifier.height(24.dp))
-                Button(
+                Spacer(Modifier.height(12.dp))
+            }
+            errorSelects?.let {
+                Text(it, color = Color.Red, style = MaterialTheme.typography.bodySmall)
+                Spacer(Modifier.height(12.dp))
+            }
 
-                    colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
-                    onClick = {
+            Card(
+                modifier = Modifier.fillMaxWidth(),
+                elevation = CardDefaults.cardElevation(defaultElevation = 8.dp)
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
 
-                        if (claseSeleccionadaId == null || tipoSeleccionadoId == null || zonaSeleccionadaId == null || servicioSeleccionadoId == null || marcaSeleccionada.value.isEmpty() || capacidadSeleccionada.value == null || modeloSeleccionado.value == null || colorSeleccionado.value.isEmpty() || matriculaSeleccionada.value.isEmpty() || placaSeleccionada.value.isEmpty()) {
-                            Toast.makeText(
-                                context,
-                                "Por favor, complete todos los campos",
-                                Toast.LENGTH_SHORT
-                            ).show()
-                            return@Button
-                        }
+                    // Marca
+                    LabeledTextField(
+                        label = "Marca",
+                        value = marca,
+                        onValueChange = { marca = it }
+                    )
+                    Spacer(Modifier.height(16.dp))
 
-                        isLoading.value = true
-                        coroutineScope.launch {
-                            submitDeliveryForm(
-                                tokenManager = tokenManager,
-                                apiService = apiService,
-                                onClose = onClose,
-                                context = context,
-                                vehicleRequest = VehiculeRequest(
-                                    marca = marcaSeleccionada.value,
-                                    modeloVehiculo = modeloSeleccionado.value!!,
-                                    color = colorSeleccionado.value,
-                                    placa = placaSeleccionada.value,
-                                    capacidadVehiculo = capacidadSeleccionada.value!!,
-                                    fechaMatricula = matriculaSeleccionada.value,
-                                    servicio = servicioSeleccionadoId ?: "",
-                                    idActividadVehiculo = tipoSeleccionadoId ?: "",
-                                    idClaseVehiculo = claseSeleccionadaId ?: "",
-                                    idZona = zonaSeleccionadaId ?: ""
-                                ),
-                                onSucces = { success ->
-                                    showSuccessDialog = success
-                                }
+                    // Modelo (numérico)
+                    LabeledTextField(
+                        label = "Modelo",
+                        value = modelo,
+                        onValueChange = { modelo = it },
+                        keyboardType = KeyboardType.Number
+                    )
+                    Spacer(Modifier.height(16.dp))
 
-                            )
-                        }
-                    },
-                    modifier = Modifier.fillMaxWidth()
-                ) {
-                    if (isLoading.value) {
-                        CircularProgressIndicator(
-                            color = Color.White,
-                            modifier = Modifier.size(24.dp)
-                        )
-                    } else {
-                        Text("Registrar Vehículo")
-                    }
+                    // Color
+                    LabeledTextField(
+                        label = "Color",
+                        value = color,
+                        onValueChange = { color = it }
+                    )
+                    Spacer(Modifier.height(16.dp))
 
-                    if (showSuccessDialog) {
-                        AlertDialogSucces(
-                            onConfirmation = { showSuccessDialog = false },
-                            dialogTitle = "Éxito",
-                            dialogText = "Vehículo registrado con éxito",
-                            icon = Icons.Default.Check
-                        )
-                    }
+                    // Placa
+                    LabeledTextField(
+                        label = "Placa",
+                        value = placa,
+                        onValueChange = { placa = it }
+                    )
+                    Spacer(Modifier.height(16.dp))
 
+                    // Capacidad (numérico)
+                    LabeledTextField(
+                        label = "Capacidad",
+                        value = capacidad,
+                        onValueChange = { capacidad = it },
+                        keyboardType = KeyboardType.Number
+                    )
+                    Spacer(Modifier.height(16.dp))
+
+                    // Fecha Matrícula (DatePicker -> ISO)
+                    MatriculaPicker(
+                        value = fechaMatricula,
+                        onValue = { fechaMatricula = it }
+                    )
+                    Spacer(Modifier.height(16.dp))
+
+                    // Selects (desde VM)
+                    SelectDropdown(
+                        label = "Actividad (Tipo de vehículo)",
+                        options = tipos.map { it._id to it.nombreTipo },
+                        selectedId = idTipo,
+                        onSelected = { idTipo = it },
+                        enabled = !loadingSelects
+                    )
+                    Spacer(Modifier.height(16.dp))
+
+                    SelectDropdown(
+                        label = "Zona",
+                        options = zonas.map { it._id to it.nombreZona },
+                        selectedId = idZona,
+                        onSelected = { idZona = it },
+                        enabled = !loadingSelects
+                    )
+                    Spacer(Modifier.height(16.dp))
+
+                    SelectDropdown(
+                        label = "Clase",
+                        options = clases.map { it._id to it.name },
+                        selectedId = idClase,
+                        onSelected = { idClase = it },
+                        enabled = !loadingSelects
+                    )
+                    Spacer(Modifier.height(16.dp))
+
+                    SelectDropdown(
+                        label = "Servicio",
+                        options = servicios.map { it._id to it.name },
+                        selectedId = idServicio,
+                        onSelected = { idServicio = it },
+                        enabled = !loadingSelects
+                    )
                 }
             }
+
+            Spacer(Modifier.height(24.dp))
+
+            // Botón Enviar
+            Button(
+                onClick = {
+                    // Validación simple local
+                    val modeloString = modelo.toString()
+                    val capInt = capacidad.toIntOrNull()
+
+                    val hayVacios = listOf(
+                        marca.isBlank(),
+                        modeloString == "",
+                        color.isBlank(),
+                        placa.isBlank(),
+                        capInt == null,
+                        fechaMatricula.isBlank(),
+                        idServicio.isNullOrBlank(),
+                        idTipo.isNullOrBlank(),
+                        idClase.isNullOrBlank(),
+                        idZona.isNullOrBlank()
+                    ).any { it }
+
+                    if (hayVacios) {
+                        Toast.makeText(context, "Completa todos los campos", Toast.LENGTH_SHORT)
+                            .show()
+                        return@Button
+                    }
+
+                    viewModel.submitNewVehicle(
+                        context = context,
+                        formData = VehicleRequestDto(
+                            idClaseVehiculo = idClase!!,
+                            idActividadVehiculo = idTipo!!,
+                            idZona = idZona!!,
+                            marca = marca,
+                            servicio = idServicio!!,
+                            capacidadVehiculo = capInt!!,
+                            modeloVehiculo = modeloString,
+                            color = color,
+                            fechaMatricula = fechaMatricula,
+                            placa = placa
+                        ),
+                        onSuccess = {
+                            showSuccessDialog = true
+                        },
+                        onError = { msg ->
+                            Toast.makeText(context, msg, Toast.LENGTH_LONG).show()
+                        }
+                    )
+                },
+                modifier = Modifier.fillMaxWidth(),
+                colors = ButtonDefaults.buttonColors(containerColor = Color.Black),
+                enabled = !creatingVehicle && !loadingSelects
+            ) {
+                if (creatingVehicle) {
+                    CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                } else {
+                    Text("Registrar Vehículo")
+                }
+            }
+
+            errorCreating?.let {
+                Spacer(Modifier.height(8.dp))
+                Text(it, color = Color.Red, style = MaterialTheme.typography.bodySmall)
+            }
+
+            if (showSuccessDialog) {
+                AlertDialogSucces(
+                    onConfirmation = {
+                        showSuccessDialog = false
+                        onClose()
+                        navController.popBackStack()
+                    },
+                    dialogTitle = "Éxito",
+                    dialogText = "Vehículo registrado con éxito",
+                    icon = Icons.Default.Check
+                )
+            }
         }
-    )
+    }
 }
 
-
-suspend fun submitDeliveryForm(
-    tokenManager: TokenManager,
-    apiService: ApiService,
-    vehicleRequest: VehiculeRequest,
-    onClose: () -> Unit,
-    context: Context,
-    onSucces: (Boolean) -> Unit
+@Composable
+private fun LabeledTextField(
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    keyboardType: KeyboardType = KeyboardType.Text
 ) {
-    val marca = vehicleRequest.marca
-    val modelo = vehicleRequest.modeloVehiculo
-    val color = vehicleRequest.color
-    val placa = vehicleRequest.placa
-    val capacidad = vehicleRequest.capacidadVehiculo
-    val fechaMatricula = vehicleRequest.fechaMatricula
-    val servicio = vehicleRequest.servicio
-    val tipo = vehicleRequest.idActividadVehiculo
-    val clase = vehicleRequest.idClaseVehiculo
-    val zona = vehicleRequest.idZona
-
-
-    Log.d("submitDeliveryForm", "marca: $marca")
-    Log.d(
-        "submitDeliveryForm",
-        "modelo: $modelo"
-    )
-    Log.d("submitDeliveryForm", "color: ${color}")
-    Log.d("submitDeliveryForm", "placa: ${placa}")
-    Log.d("submitDeliveryForm", "capacidad: ${capacidad}")
-    Log.d("submitDeliveryForm", "fechaMatricula: ${fechaMatricula}")
-    Log.d("submitDeliveryForm", "servicio: ${servicio}")
-    Log.d("submitDeliveryForm", "tipo: ${tipo}")
-    Log.d("submitDeliveryForm", "clase: ${clase}")
-    Log.d("submitDeliveryForm", "zona: ${zona}")
-
-    val response = apiService.registerVehicle(
-        token = "Bearer ${tokenManager.token.first()}",
-        body = VehiculeRequest(
-            marca = marca,
-            modeloVehiculo = modelo,
-            color = color,
-            placa = placa,
-            capacidadVehiculo = capacidad,
-            fechaMatricula = fechaMatricula,
-            servicio = servicio,
-            idActividadVehiculo = tipo,
-            idClaseVehiculo = clase,
-            idZona = zona
+    Column {
+        Text(
+            text = label,
+            style = MaterialTheme.typography.titleMedium,
+            modifier = Modifier.padding(bottom = 8.dp)
         )
-    )
-
-    if (response.isSuccessful) {
-        onClose()
-        val responseBody = response.body()?.toString() ?: "Sin Contenido en el cuerpo"
-        val responseCode = response.code()
-        val responseHeaders = response.headers().toMultimap()
-
-        Log.d(
-            "submitDeliveryForm", """
-        ✅ Formulario enviado con éxito:
-        - Código HTTP: $responseCode
-        - Cuerpo de respuesta: $responseBody
-        - Encabezados de respuesta: $responseHeaders
-    """.trimIndent()
-        )
-
-        onSucces(true)
-
-    } else {
-        val errorBody = response?.errorBody()?.string() ?: "Sin detalles de error"
-        val errorCode = response.code() ?: "Codigo no disponible"
-        val errorHeaders = response?.headers()?.toMultimap() ?: "Sin encabezados"
-
-
-        Log.e(
-            "submitDeliveryForm", """
-        ❌ Error al enviar el formulario:
-        - Código HTTP: $errorCode
-        - Detalles del error: $errorBody
-        - Encabezados de error: $errorHeaders
-    """.trimIndent()
+        OutlinedTextField(
+            value = value,
+            onValueChange = onValueChange,
+            label = { Text("Ingrese $label") },
+            modifier = Modifier.fillMaxWidth(),
+            keyboardOptions = KeyboardOptions(
+                imeAction = ImeAction.Done,
+                keyboardType = keyboardType
+            )
         )
     }
 }
 
 @Composable
-fun MarcaInput(marca: MutableState<String>) {
-    Column() {
+private fun MatriculaPicker(
+    value: String,
+    onValue: (String) -> Unit
+) {
+    val context = LocalContext.current
+    val calendar = Calendar.getInstance()
+
+    val showDatePicker = {
+        DatePickerDialog(
+            context,
+            { _, year, month, day ->
+                val selected = Calendar.getInstance().apply { set(year, month, day) }
+                val now = Calendar.getInstance()
+                if (selected.after(now)) {
+                    Toast.makeText(
+                        context,
+                        "La fecha de matrícula no puede ser futura",
+                        Toast.LENGTH_SHORT
+                    ).show()
+                } else {
+                    val fmt = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
+                    onValue(fmt.format(selected.time))
+                }
+            },
+            calendar.get(Calendar.YEAR),
+            calendar.get(Calendar.MONTH),
+            calendar.get(Calendar.DAY_OF_MONTH)
+        ).show()
+    }
+
+    Column {
         Text(
-            text = "Marca",
+            text = "Fecha de Matrícula",
             style = MaterialTheme.typography.titleMedium,
             modifier = Modifier.padding(bottom = 8.dp)
         )
-        OutlinedTextField(
-            value = marca.value,
-            onValueChange = { marca.value = it },
-            label = { Text("Ingrese la Marca") },
-            modifier = Modifier.fillMaxWidth()
-        )
+        Button(
+            onClick = showDatePicker,
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(56.dp),
+            colors = ButtonDefaults.buttonColors(
+                containerColor = Color.Transparent,
+                contentColor = MaterialTheme.colorScheme.onSurface
+            ),
+            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
+            shape = RoundedCornerShape(4.dp)
+        ) {
+            Box(
+                modifier = Modifier.fillMaxWidth(),
+                contentAlignment = Alignment.CenterStart
+            ) {
+                if (value.isEmpty()) {
+                    Text(
+                        "Selecciona una fecha",
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        modifier = Modifier.padding(start = 16.dp)
+                    )
+                } else {
+                    Text(value, modifier = Modifier.padding(start = 16.dp))
+                }
+            }
+        }
     }
-
-
 }
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun SelectDropdown(
+    label: String,
+    options: List<Pair<String, String>>, // (id, texto)
+    selectedId: String?,
+    onSelected: (String) -> Unit,
+    enabled: Boolean = true
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val selectedText = options.firstOrNull { it.first == selectedId }?.second ?: ""
+
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = { if (enabled && options.isNotEmpty()) expanded = !expanded }
+    ) {
+        OutlinedTextField(
+            value = selectedText,
+            onValueChange = {},
+            readOnly = true,
+            enabled = enabled && options.isNotEmpty(),
+            label = { Text(label) },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier
+                .fillMaxWidth()
+                .menuAnchor()
+        )
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            options.forEach { (id, text) ->
+                DropdownMenuItem(
+                    text = { Text(text) },
+                    onClick = {
+                        onSelected(id)
+                        expanded = false
+                    }
+                )
+            }
+        }
+    }
+}
+
 
 @Composable
 fun AlertDialogSucces(
@@ -394,371 +526,10 @@ fun ModeloInput(modelo: MutableState<Int?>) {
 }
 
 
-@Composable
-fun ColorInput(color: MutableState<String>) {
-    Column() {
-        Text(
-            text = "Color",
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        OutlinedTextField(
-            value = color.value,
-            onValueChange = { color.value = it },
-            label = { Text("Ingrese el Color") },
-            modifier = Modifier.fillMaxWidth(),
-            keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Done,
-                keyboardType = KeyboardType.Text
-            )
-        )
-    }
 
 
-}
-
-@Composable
-fun PlacaInput(placa: MutableState<String>) {
-    Column() {
-        Text(
-            text = "Placa",
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        OutlinedTextField(
-            value = placa.value,
-            onValueChange = { placa.value = it },
-            label = { Text("Ingrese la Placa") },
-            modifier = Modifier.fillMaxWidth(),
-            keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Done,
-                keyboardType = KeyboardType.Text
-            )
-        )
-    }
 
 
-}
-
-@Composable
-fun CapacidadInput(capacidad: MutableState<Int?>) {
 
 
-    val textValue = remember { mutableStateOf(capacidad.value?.toString() ?: "") }
-    Column() {
-        Text(
-            text = "Capacidad",
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-        OutlinedTextField(
-            value = textValue.value,
-            onValueChange = { newText ->
-                textValue.value = newText
-                capacidad.value = newText.toIntOrNull()
 
-            },
-            label = { Text("Ingrese la Capacidad") },
-            modifier = Modifier.fillMaxWidth(),
-            keyboardOptions = KeyboardOptions(
-                imeAction = ImeAction.Done,
-                keyboardType = KeyboardType.Number
-            )
-        )
-    }
-
-
-}
-
-
-@Composable
-fun MatriculaInput(matricula: MutableState<String>) {
-    val context = LocalContext.current
-    val calendar = Calendar.getInstance()
-
-    val showDatePicker = {
-        val datePickerDialog = DatePickerDialog(
-            context,
-            { _: DatePicker, year: Int, month: Int, dayOfMonth: Int ->
-                val selectedCalendar = Calendar.getInstance().apply {
-                    set(year, month, dayOfMonth)
-                }
-                val currentCalendar = Calendar.getInstance()
-
-                if (selectedCalendar.after(currentCalendar)) {
-                    Toast.makeText(
-                        context,
-                        "La fecha de matrícula no puede ser futura",
-                        Toast.LENGTH_SHORT
-                    ).show()
-                } else {
-                    val isoFormat = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss", Locale.getDefault())
-                    val formattedDate = isoFormat.format(selectedCalendar.time)
-                    matricula.value = formattedDate
-                }
-            },
-            calendar.get(Calendar.YEAR),
-            calendar.get(Calendar.MONTH),
-            calendar.get(Calendar.DAY_OF_MONTH)
-        )
-        datePickerDialog.show()
-    }
-
-    Column {
-        Text(
-            text = "Fecha de Matrícula",
-            style = MaterialTheme.typography.titleMedium,
-            modifier = Modifier.padding(bottom = 8.dp)
-        )
-
-        Button(
-            onClick = { showDatePicker() },
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(56.dp),
-            colors = ButtonDefaults.buttonColors(
-                containerColor = Color.Transparent,
-                contentColor = MaterialTheme.colorScheme.onSurface
-            ),
-            border = BorderStroke(1.dp, MaterialTheme.colorScheme.outline),
-            shape = RoundedCornerShape(4.dp)
-        ) {
-            Box(
-                modifier = Modifier.fillMaxWidth(),
-                contentAlignment = Alignment.CenterStart
-            ) {
-                if (matricula.value.isEmpty()) {
-                    Text(
-                        "Selecciona una fecha",
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        modifier = Modifier.padding(start = 16.dp)
-                    )
-                } else {
-                    Text(
-                        matricula.value,
-                        modifier = Modifier.padding(start = 16.dp)
-                    )
-                }
-            }
-        }
-    }
-}
-
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SelectServicio(
-    tokenManager: TokenManager,
-    apiService: ApiService,
-    onServicioSelected: (String?) -> Unit
-) {
-
-    val repository = remember { SelectsRepository(apiService, tokenManager) }
-    val responseServicio by produceState<MyResponseSelects?>(initialValue = null) {
-
-        withContext(Dispatchers.IO) {
-            value = repository.fetchSelectData()
-        }
-    }
-    val options = responseServicio?.servicio
-    var expanded by remember { mutableStateOf(false) }
-    var selectedOption by remember { mutableStateOf(options?.firstOrNull()) }
-
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded }
-    ) {
-        OutlinedTextField(
-            value = selectedOption?.name ?: "",
-            onValueChange = { selectedOption?._id },
-            readOnly = true,
-            label = { Text("Selecciona la Actividad") },
-            trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .menuAnchor()
-        )
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            options?.forEach { option ->
-                DropdownMenuItem(
-                    text = { Text(option.name) },
-                    onClick = {
-                        selectedOption = option
-                        expanded = false
-                        onServicioSelected(option._id)
-                    }
-                )
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SelectZona(
-    tokenManager: TokenManager,
-    apiService: ApiService,
-    onZonaSelected: (String?) -> Unit
-) {
-
-    val repository = remember { SelectsRepository(apiService, tokenManager) }
-    val responseZona by produceState<MyResponseSelects?>(initialValue = null) {
-
-        withContext(Dispatchers.IO) {
-            value = repository.fetchSelectData()
-        }
-    }
-    val options = responseZona?.zonas
-    var expanded by remember { mutableStateOf(false) }
-    var selectedOption by remember { mutableStateOf(options?.firstOrNull()) }
-
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded }
-    ) {
-        OutlinedTextField(
-            value = selectedOption?.nombreZona ?: "",
-            onValueChange = { selectedOption?._id },
-            readOnly = true,
-            label = { Text("Selecciona la Zona") },
-            trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .menuAnchor()
-        )
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            options?.forEach { option ->
-                DropdownMenuItem(
-                    text = { Text(option.nombreZona) },
-                    onClick = {
-                        selectedOption = option
-                        expanded = false
-                        onZonaSelected(option._id)
-                    }
-                )
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SelectClases(
-    tokenManager: TokenManager,
-    apiService: ApiService,
-    onClaseSelected: (String?) -> Unit
-) {
-
-    val repository = remember { SelectsRepository(apiService, tokenManager) }
-    val responseClase by produceState<MyResponseSelects?>(initialValue = null) {
-
-        withContext(Dispatchers.IO) {
-            value = repository.fetchSelectData()
-        }
-    }
-    val options = responseClase?.clases
-    var expanded by remember { mutableStateOf(false) }
-    var selectedOption by remember { mutableStateOf(options?.firstOrNull()) }
-
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded }
-    ) {
-        OutlinedTextField(
-            value = selectedOption?.name ?: "",
-            onValueChange = { selectedOption?._id },
-            readOnly = true,
-            label = { Text("Selecciona la Clase") },
-            trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .menuAnchor()
-        )
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            options?.forEach { option ->
-                DropdownMenuItem(
-                    text = { Text(option.name) },
-                    onClick = {
-                        selectedOption = option
-                        expanded = false
-                        onClaseSelected(option._id)
-                    }
-                )
-            }
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SelectTipoVehiculo(
-    tokenManager: TokenManager,
-    apiService: ApiService,
-    onTipoSelected: (String?) -> Unit
-) {
-
-    val repository = remember { SelectsRepository(apiService, tokenManager) }
-    val responseTipo by produceState<MyResponseSelects?>(initialValue = null) {
-
-        withContext(Dispatchers.IO) {
-            value = repository.fetchSelectData()
-        }
-    }
-    val options = responseTipo?.tipos
-    var expanded by remember { mutableStateOf(false) }
-    var selectedOption by remember { mutableStateOf(options?.firstOrNull()) }
-
-    ExposedDropdownMenuBox(
-        expanded = expanded,
-        onExpandedChange = { expanded = !expanded }
-    ) {
-        OutlinedTextField(
-            value = selectedOption?.nombreTipo ?: "",
-            onValueChange = { selectedOption?._id },
-            readOnly = true,
-            label = { Text("Selecciona la Actividad") },
-            trailingIcon = {
-                ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .menuAnchor()
-        )
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            options?.forEach { option ->
-                DropdownMenuItem(
-                    text = { Text(option.nombreTipo) },
-                    onClick = {
-                        selectedOption = option
-                        expanded = false
-                        onTipoSelected(option._id)
-                    }
-                )
-            }
-        }
-    }
-}
-
-@Preview(showBackground = true)
-@Composable
-fun FormScreenPreview() {
-    FormVehicleScreen(navController = NavController(LocalContext.current), onClose = {})
-}

@@ -6,7 +6,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 object RetrofitHelper {
     fun getRetrofit():  Retrofit{
         return Retrofit.Builder()
-            .baseUrl("https://backend-pesv.vercel.app/")
+            .baseUrl("https://backend-pesv-efagram.vercel.app/")
             .addConverterFactory(GsonConverterFactory.create())
             .build()
 

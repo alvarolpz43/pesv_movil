@@ -122,7 +122,6 @@ fun PesvNavGraph(
                 GarajeScreen(
                     navController = navController,
                     openDrawer = { coroutineScope.launch { drawerState.open() } },
-                    tokenManager = tokenManager
                 )
             }
         }

@@ -13,8 +13,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.pesv_movil.Garaje.ui.theme.Pesv_movilTheme
 import com.example.pesv_movil.R
+import com.example.pesv_movil.ui.theme.Pesv_movilTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -61,7 +61,7 @@ fun GarajeTopAppBar(openDrawer: () -> Unit) {
 @Preview
 @Composable
 private fun HomeTopAppBarPreview() {
-    Pesv_movilTheme {
+    Pesv_movilTheme() {
         Surface {
             HomeTopAppBar{ }
         }
